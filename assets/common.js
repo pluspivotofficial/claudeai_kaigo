@@ -86,6 +86,9 @@ function selectedChips(container) {
    静的サイトのため、入力内容を本文に差し込んでメーラーを起動します。
    =========================================================== */
 const CONTACT_EMAIL = "kiminari.takahashi@pluspivot.co.jp";
+// Web3Forms のアクセスキー（https://web3forms.com で上記メール宛に発行）。
+// ※このキーは「指定メールへの送信」専用で、公開しても問題ありません。
+const WEB3FORMS_ACCESS_KEY = "YOUR_ACCESS_KEY_HERE";
 const TOOL_OPTIONS = [
   "シフト作成ツール",
   "介護記録 作成支援",
@@ -129,9 +132,6 @@ function contactSectionHTML(currentTool) {
   <section class="card" id="contact" style="border-color:var(--teal-light);">
     <h2 style="font-size:1.3rem;">お問い合わせ</h2>
     <p style="color:var(--ink-soft);margin-top:-4px;">導入のご相談・カスタマイズのご要望など、お気軽にどうぞ。</p>
-    <div style="margin:14px 0 22px;">
-      <button class="btn btn-ghost" onclick="contactByMail('${(currentTool || "").replace(/'/g, "")}')">✉️ メールで詳細を問い合わせる</button>
-    </div>
     <form onsubmit="submitContact(event)">
       <div class="field">
         <label>気になるAIツール</label>
@@ -152,32 +152,68 @@ function contactSectionHTML(currentTool) {
         <label>お問い合わせ内容 <span class="hint">任意</span></label>
         <textarea name="message" rows="4" placeholder="ご相談内容をご記入ください（任意）"></textarea>
       </div>
-      <button type="submit" class="btn btn-primary">この内容でメールを作成</button>
-      <p class="hint" style="margin-top:12px;">送信ボタンを押すと、入力内容を反映したメールが起動します。最後に送信ボタンを押してください。</p>
+      <!-- スパム対策（人間には見えない） -->
+      <input type="checkbox" name="botcheck" tabindex="-1" autocomplete="off" style="display:none !important;">
+      <button type="submit" class="btn btn-primary">送信する</button>
+      <button type="button" class="btn btn-ghost btn-sm" style="margin-left:10px;" onclick="contactByMail('${(currentTool || "").replace(/'/g, "")}')">または直接メールする ✉️</button>
+      <p class="hint" id="contact-status" style="margin-top:12px;">送信ボタンを押すと内容が送信され、担当者に通知が届きます。</p>
     </form>
   </section>`;
 }
 
-/** フォーム送信 → メーラー起動 */
-function submitContact(e) {
+/** フォーム送信 → Web3Forms へ送信（ページ遷移なし） */
+async function submitContact(e) {
   e.preventDefault();
   const f = e.target;
   const d = readForm(f);
-  const subject = `【ケアスイート】お問い合わせ（${d.tool}）`;
-  const body =
-`▼ ケアスイート for Claude お問い合わせ
+  const status = f.querySelector("#contact-status");
 
-気になるAIツール：${d.tool}
-お名前：${d.name}
-施設名：${d.facility}
-ご連絡先（電話番号）：${d.phone}
-ご連絡先（メールアドレス）：${d.email}
+  // アクセスキー未設定時はメーラー起動にフォールバック
+  if (!WEB3FORMS_ACCESS_KEY || WEB3FORMS_ACCESS_KEY === "YOUR_ACCESS_KEY_HERE") {
+    if (status) status.textContent = "（フォーム送信は準備中です。メールソフトを起動します）";
+    contactByMail(d.tool);
+    return;
+  }
 
-お問い合わせ内容：
-${d.message || "（記載なし）"}`;
-  window.location.href =
-    `mailto:${CONTACT_EMAIL}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
-  toast("メールソフトを起動します ✉️");
+  const btn = f.querySelector('button[type="submit"]');
+  const orig = btn.textContent;
+  btn.disabled = true; btn.textContent = "送信中…";
+  if (status) { status.style.color = "var(--ink-soft)"; status.textContent = "送信しています…"; }
+
+  const payload = {
+    access_key: WEB3FORMS_ACCESS_KEY,
+    subject: `【ケアスイート】お問い合わせ（${d.tool}）`,
+    from_name: "ケアスイート for Claude",
+    "気になるAIツール": d.tool,
+    "お名前": d.name,
+    "施設名": d.facility,
+    "ご連絡先（電話番号）": d.phone,
+    "ご連絡先（メールアドレス）": d.email,
+    "お問い合わせ内容": d.message || "（記載なし）",
+    replyto: d.email,
+    botcheck: d.botcheck && d.botcheck.length ? true : false,
+  };
+
+  try {
+    const res = await fetch("https://api.web3forms.com/submit", {
+      method: "POST",
+      headers: { "Content-Type": "application/json", Accept: "application/json" },
+      body: JSON.stringify(payload),
+    });
+    const json = await res.json();
+    if (json.success) {
+      f.reset();
+      if (status) { status.style.color = "var(--ok)"; status.textContent = "✓ 送信しました。担当者よりご連絡いたします。ありがとうございました。"; }
+      toast("送信しました ✓");
+    } else {
+      throw new Error(json.message || "送信に失敗しました");
+    }
+  } catch (err) {
+    if (status) { status.style.color = "var(--danger)"; status.innerHTML = "送信できませんでした。お手数ですが「直接メールする」からご連絡ください。"; }
+    toast("送信に失敗しました");
+  } finally {
+    btn.disabled = false; btn.textContent = orig;
+  }
 }
 
 /** 指定要素にお問い合わせフォームを差し込む（id="contact-mount"） */
