@@ -3,65 +3,87 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>ケアスイート for Claude ｜ 介護現場のためのAIツールキット</title>
-<meta name="description" content="介護施設の現場業務を、AI（Claude）でラクにする無料ツール集。シフト作成・介護記録・加算判定・ヒヤリハット報告など、現場で困りがちな業務をワンクリックで支援します。">
+<title>ケアスイート for Claude ｜ 介護現場の事務作業をAIで効率化</title>
+<meta name="description" content="介護記録・帳票・シフト作成・加算判定・ヒヤリハット報告など、時間に追われる事務作業をAI（Claude）で効率化。ブラウザですぐ使える無料ツール12種＋施設ごとの個別開発に対応。">
 <link rel="stylesheet" href="assets/style.css">
 <style>
-/* LP 専用スタイル */
+/* ===== LP 専用スタイル ===== */
 .hero {
   background: linear-gradient(160deg, #ecfdf5 0%, #f3faf8 55%, #fffdf5 100%);
-  padding: 64px 22px 56px;
+  padding: 70px 22px 60px;
   text-align: center;
 }
 .hero .eyebrow {
   display: inline-block; font-weight: 700; color: var(--teal);
   background: #d1fae5; padding: 6px 16px; border-radius: 999px; font-size: .85rem; margin-bottom: 18px;
 }
-.hero h1 { font-size: 2.5rem; margin: 0 0 16px; line-height: 1.35; }
+.hero h1 { font-size: 2.6rem; margin: 0 0 18px; line-height: 1.32; }
 .hero h1 .hl { color: var(--teal); }
-.hero p.lead { font-size: 1.1rem; color: var(--ink-soft); max-width: 620px; margin: 0 auto 28px; }
+.hero p.lead { font-size: 1.12rem; color: var(--ink-soft); max-width: 640px; margin: 0 auto 30px; }
 .hero .cta { display: flex; gap: 12px; justify-content: center; flex-wrap: wrap; }
-.hero .stat { margin-top: 34px; display:flex; gap:34px; justify-content:center; flex-wrap:wrap; color:var(--ink-soft); font-size:.9rem; }
+.hero .btn { padding: 14px 26px; font-size: 1rem; }
+.hero .stat { margin-top: 36px; display:flex; gap:34px; justify-content:center; flex-wrap:wrap; color:var(--ink-soft); font-size:.9rem; }
 .hero .stat b { display:block; font-size:1.6rem; color:var(--teal-dark); }
-@media (max-width:640px){ .hero h1{font-size:1.9rem;} }
+@media (max-width:640px){ .hero h1{font-size:1.95rem;} }
 
-.section { padding: 50px 0; }
-.section-title { text-align: center; margin-bottom: 8px; font-size: 1.6rem; }
-.section-sub { text-align: center; color: var(--ink-soft); margin: 0 0 34px; }
+.section { padding: 56px 0; }
+.section-title { text-align: center; margin-bottom: 8px; font-size: 1.7rem; }
+.section-sub { text-align: center; color: var(--ink-soft); margin: 0 0 36px; }
 
-.cat-label {
-  font-size: .85rem; font-weight: 800; color: var(--teal-dark);
-  letter-spacing: .05em; margin: 34px 0 14px; display: flex; align-items: center; gap: 10px;
-}
+/* 課題提起 */
+.problem { background:#fff7ed; border-top:1px solid #fed7aa; border-bottom:1px solid #fed7aa; }
+.problem-grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(240px,1fr)); gap:16px; }
+.problem-card { background:#fff; border:1px solid #fed7aa; border-radius:var(--radius); padding:20px; display:flex; gap:12px; align-items:flex-start; }
+.problem-card .x { font-size:1.4rem; line-height:1; }
+.problem-card p { margin:0; color:var(--ink); font-weight:600; }
+
+/* 3つの特徴 */
+.pillars { display:grid; grid-template-columns:repeat(3,1fr); gap:20px; }
+@media (max-width:820px){ .pillars{grid-template-columns:1fr;} }
+.pillar { background:#fff; border:1px solid var(--line); border-radius:var(--radius); padding:28px; box-shadow:var(--shadow); text-align:center; }
+.pillar .pico { width:64px;height:64px;border-radius:18px;background:#ecfdf5;display:grid;place-items:center;font-size:1.9rem;margin:0 auto 16px; }
+.pillar h3 { margin:0 0 10px; font-size:1.2rem; }
+.pillar p { color:var(--ink-soft); margin:0; font-size:.95rem; }
+
+/* カテゴリ見出し（ツール一覧） */
+.cat-label { font-size:.85rem; font-weight:800; color:var(--teal-dark); letter-spacing:.05em; margin:34px 0 14px; display:flex; align-items:center; gap:10px; }
 .cat-label::after { content:""; flex:1; height:1px; background:var(--line); }
+.grid { display:grid; grid-template-columns:repeat(auto-fill, minmax(260px, 1fr)); gap:18px; }
+.tool-card { display:flex; flex-direction:column; background:#fff; border:1px solid var(--line); border-radius:var(--radius); padding:22px; box-shadow:var(--shadow); transition:transform .15s ease, box-shadow .15s ease, border-color .15s ease; text-decoration:none; color:inherit; }
+.tool-card:hover { transform:translateY(-4px); box-shadow:var(--shadow-lg); border-color:var(--teal-light); text-decoration:none; }
+.tool-card .ico { width:52px; height:52px; border-radius:14px; display:grid; place-items:center; font-size:1.6rem; margin-bottom:14px; background:#ecfdf5; }
+.tool-card h3 { margin:0 0 6px; font-size:1.1rem; }
+.tool-card p { margin:0 0 14px; color:var(--ink-soft); font-size:.9rem; flex:1; }
+.tool-card .go { font-weight:700; color:var(--teal); font-size:.9rem; }
 
-.grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
-  gap: 18px;
-}
-.tool-card {
-  display: flex; flex-direction: column;
-  background: #fff; border: 1px solid var(--line); border-radius: var(--radius);
-  padding: 22px; box-shadow: var(--shadow);
-  transition: transform .15s ease, box-shadow .15s ease, border-color .15s ease;
-  text-decoration: none; color: inherit;
-}
-.tool-card:hover { transform: translateY(-4px); box-shadow: var(--shadow-lg); border-color: var(--teal-light); text-decoration: none; }
-.tool-card .ico {
-  width: 52px; height: 52px; border-radius: 14px; display: grid; place-items: center;
-  font-size: 1.6rem; margin-bottom: 14px; background: #ecfdf5;
-}
-.tool-card h3 { margin: 0 0 6px; font-size: 1.1rem; }
-.tool-card p { margin: 0 0 14px; color: var(--ink-soft); font-size: .9rem; flex: 1; }
-.tool-card .go { font-weight: 700; color: var(--teal); font-size: .9rem; }
-.tool-card.soon { opacity: .65; pointer-events: none; }
-.tool-card.soon .go { color: var(--ink-soft); }
+/* メリット */
+.benefits { display:grid; grid-template-columns:repeat(auto-fit,minmax(230px,1fr)); gap:18px; }
+.benefit { background:#fff; border:1px solid var(--line); border-radius:var(--radius); padding:22px; box-shadow:var(--shadow); }
+.benefit .b-ico { font-size:1.6rem; }
+.benefit h3 { margin:8px 0 6px; font-size:1.05rem; }
+.benefit p { margin:0; color:var(--ink-soft); font-size:.9rem; }
 
-.how { display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; }
+/* 使い方 */
+.how { display:grid; grid-template-columns:repeat(3,1fr); gap:20px; }
 @media (max-width:760px){ .how{grid-template-columns:1fr;} }
 .how .step { background:#fff; border:1px solid var(--line); border-radius:var(--radius); padding:24px; box-shadow:var(--shadow); }
 .how .num { width:36px;height:36px;border-radius:50%;background:var(--teal);color:#fff;display:grid;place-items:center;font-weight:800;margin-bottom:12px; }
+
+/* 信頼 */
+.trust-grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(240px,1fr)); gap:16px; }
+.trust-item { display:flex; gap:12px; align-items:flex-start; background:#fff; border:1px solid var(--line); border-radius:var(--radius); padding:20px; box-shadow:var(--shadow); }
+.trust-item .t-ico { font-size:1.5rem; }
+.trust-item h3 { margin:0 0 4px; font-size:1rem; }
+.trust-item p { margin:0; color:var(--ink-soft); font-size:.88rem; }
+
+/* CTAバンド */
+.cta-band { background:linear-gradient(135deg, var(--teal), var(--teal-dark)); color:#fff; text-align:center; padding:56px 22px; }
+.cta-band h2 { font-size:1.8rem; margin:0 0 12px; color:#fff; }
+.cta-band p { margin:0 auto 26px; max-width:560px; opacity:.95; }
+.cta-band .btn-primary { background:#fff; color:var(--teal-dark); }
+.cta-band .btn-primary:hover { background:#f0fdfa; }
+.cta-band .btn-ghost { background:transparent; color:#fff; border-color:rgba(255,255,255,.6); }
+.cta-band .btn-ghost:hover { background:rgba(255,255,255,.12); }
 </style>
 </head>
 <body>
@@ -69,22 +91,24 @@
 <header class="topbar">
   <div class="brand"><span class="logo">C</span> ケアスイート <span style="font-weight:600;color:var(--ink-soft);font-size:.85rem;">for Claude</span></div>
   <nav>
-    <a href="#tools">ツール一覧</a>
-    <a href="#how">使い方</a>
+    <a href="#features">特徴</a>
+    <a href="#tools">ツール</a>
     <a href="#pricing">料金</a>
     <a href="#faq">よくある質問</a>
+    <a href="#contact-section">お問い合わせ</a>
   </nav>
 </header>
 
+<!-- ファーストビュー -->
 <section class="hero">
-  <span class="eyebrow">介護施設向け ・ AI活用ツールキット</span>
-  <h1>介護現場の「めんどう」を、<br><span class="hl">AIでまるごとラク</span>に。</h1>
-  <p class="lead">シフト作成、介護記録、加算判定、ヒヤリハット報告 ──
-  現場で時間を取られがちな業務を、Claude（生成AI）でサポートする無料ツール集です。
-  インストール不要、ブラウザですぐ使えます。</p>
+  <span class="eyebrow">介護施設向け ・ Claude活用支援サービス</span>
+  <h1>記録・帳票・シフトの事務作業を、<br><span class="hl">AIでまるごと効率化</span>。</h1>
+  <p class="lead">介護記録の清書、加算判定、ヒヤリハット報告、シフト作成 ──
+  時間に追われる事務作業を、生成AI「Claude」が支援します。
+  空いた時間を、利用者と向き合う時間へ。</p>
   <div class="cta">
-    <a class="btn btn-primary" href="#tools">ツールを使ってみる</a>
-    <a class="btn btn-ghost" href="#how">使い方を見る</a>
+    <a class="btn btn-primary" href="#tools">無料でツールを使う</a>
+    <a class="btn btn-ghost" href="#contact-section">導入を相談する</a>
   </div>
   <div class="stat">
     <div><b>12</b>種類のツール</div>
@@ -93,8 +117,48 @@
   </div>
 </section>
 
-<main class="wrap section" id="tools">
-  <h2 class="section-title">ツール一覧</h2>
+<!-- 課題提起 -->
+<section class="section problem">
+  <div class="wrap">
+    <h2 class="section-title">こんなお悩み、ありませんか？</h2>
+    <p class="section-sub">介護の現場では、記録や事務作業に多くの時間が取られています。</p>
+    <div class="problem-grid">
+      <div class="problem-card"><span class="x">❌</span><p>記録や帳票の作成に時間がかかり、残業が減らない</p></div>
+      <div class="problem-card"><span class="x">❌</span><p>申し送りやヒヤリハット報告の文章化が負担</p></div>
+      <div class="problem-card"><span class="x">❌</span><p>加算の算定要件が複雑で、確認に手間がかかる</p></div>
+      <div class="problem-card"><span class="x">❌</span><p>AIを使ってみたいが、何から始めればいいか分からない</p></div>
+    </div>
+  </div>
+</section>
+
+<!-- 3つの特徴 -->
+<section class="section" id="features">
+  <div class="wrap">
+    <h2 class="section-title">ケアスイートでできること</h2>
+    <p class="section-sub">介護現場の「困った」を、3つの領域でまるごと支援します。</p>
+    <div class="pillars">
+      <div class="pillar">
+        <div class="pico">📝</div>
+        <h3>記録・帳票の作成支援</h3>
+        <p>箇条書きのメモを入れるだけで、介護記録・申し送り・ケアプランの文章をAIが整えます。清書や転記の手間を大幅に削減。</p>
+      </div>
+      <div class="pillar">
+        <div class="pico">🗂️</div>
+        <h3>業務・運営の効率化</h3>
+        <p>シフト作成や加算区分の判定など、管理者を悩ませる業務をサポート。公平なシフト案や算定要件の確認をスムーズに。</p>
+      </div>
+      <div class="pillar">
+        <div class="pico">🛟</div>
+        <h3>安全・ケアの質向上</h3>
+        <p>ヒヤリハット報告・転倒リスク評価・服薬管理など、事故予防とケアの質を高める仕組みを現場に。</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ツール一覧 -->
+<main class="wrap section" id="tools" style="background:#fff;border-top:1px solid var(--line);border-bottom:1px solid var(--line);">
+  <h2 class="section-title">12種類のツール</h2>
   <p class="section-sub">使いたいツールをクリックしてください。すべてブラウザ上で完結します。</p>
 
   <div class="cat-label">📝 記録・モニタリング</div>
@@ -170,6 +234,21 @@
   </div>
 </main>
 
+<!-- 導入メリット -->
+<section class="section">
+  <div class="wrap">
+    <h2 class="section-title">導入のメリット</h2>
+    <p class="section-sub">現場の負担を減らし、ケアに集中できる環境へ。</p>
+    <div class="benefits">
+      <div class="benefit"><div class="b-ico">⏱️</div><h3>事務時間を削減</h3><p>記録・帳票の作成時間を短縮し、空いた時間を利用者と向き合う時間へ。</p></div>
+      <div class="benefit"><div class="b-ico">🙆</div><h3>誰でもすぐ使える</h3><p>登録もインストールも不要。スマホ・PCのブラウザですぐに始められます。</p></div>
+      <div class="benefit"><div class="b-ico">💰</div><h3>0円から始められる</h3><p>ブラウザ版は無料。まずは試して、必要になったら個別開発へ。</p></div>
+      <div class="benefit"><div class="b-ico">🛠️</div><h3>施設に合わせて拡張</h3><p>帳票様式や運用ルールに合わせた専用ツールの開発にも対応します。</p></div>
+    </div>
+  </div>
+</section>
+
+<!-- 使い方 -->
 <section class="section" id="how" style="background:#fff;border-top:1px solid var(--line);border-bottom:1px solid var(--line);">
   <div class="wrap">
     <h2 class="section-title">使い方はかんたん3ステップ</h2>
@@ -182,7 +261,22 @@
   </div>
 </section>
 
-<section class="section" id="pricing">
+<!-- 安心・信頼 -->
+<section class="section">
+  <div class="wrap">
+    <h2 class="section-title">安心してお使いいただくために</h2>
+    <p class="section-sub">介護現場で使うからこそ、プライバシーと使いやすさに配慮しています。</p>
+    <div class="trust-grid">
+      <div class="trust-item"><span class="t-ico">🔒</span><div><h3>データは端末内に保存</h3><p>記録系ツールの入力内容はお使いのブラウザ内のみに保存。外部サーバーへは送信しません。</p></div></div>
+      <div class="trust-item"><span class="t-ico">🤖</span><div><h3>最新のAIを活用</h3><p>Anthropic社の生成AI「Claude」と連携。自然で読みやすい文章作成を支援します。</p></div></div>
+      <div class="trust-item"><span class="t-ico">🏥</span><div><h3>現場目線で設計</h3><p>介護の業務フローに沿った入力項目と出力で、はじめてでも迷わず使えます。</p></div></div>
+      <div class="trust-item"><span class="t-ico">✅</span><div><h3>専門職の判断を前提</h3><p>あくまで業務支援ツール。医療・介護上の最終判断は専門職が行う設計です。</p></div></div>
+    </div>
+  </div>
+</section>
+
+<!-- 料金 -->
+<section class="section" id="pricing" style="background:#fff;border-top:1px solid var(--line);">
   <div class="wrap">
     <h2 class="section-title">料金</h2>
     <p class="section-sub">まずは無料でお試しいただき、必要になったら施設専用にカスタマイズできます。</p>
@@ -245,20 +339,34 @@
   </div>
 </section>
 
+<!-- FAQ -->
 <section class="section" id="faq" style="background:#fff;border-top:1px solid var(--line);">
   <div class="tool-wrap">
     <h2 class="section-title">よくある質問</h2>
     <div class="card" style="margin-top:24px;">
       <h3>料金はかかりますか？</h3>
       <p style="color:var(--ink-soft);margin:0 0 18px;">このサイトのブラウザ版ツールは<b>無料</b>でご利用いただけます（Claudeの利用も無料プランから始められます）。施設ごとに作り込む<b>個別開発は1ツール5,000円/月</b>、複数お申し込みで割引があります。詳しくは<a href="#pricing">料金</a>をご覧ください。</p>
+      <h3>導入に必要な準備はありますか？</h3>
+      <p style="color:var(--ink-soft);margin:0 0 18px;">特別な準備は不要です。インターネットにつながるスマホ・タブレット・PCのブラウザがあればすぐに始められます。AIで文章を仕上げる際は、無料で使えるClaude（claude.ai）をご用意ください。</p>
       <h3>入力した情報はどこかに送信されますか？</h3>
       <p style="color:var(--ink-soft);margin:0 0 18px;">記録系ツールの保存先はお使いのブラウザ内（端末内）のみです。外部サーバーには送信しません。AIで仕上げる際は、生成された文章をご自身でClaudeに貼り付ける形のため、個人が特定される情報は伏せ字にするなどご配慮ください。</p>
-      <h3>個人情報の取り扱いで気をつけることは？</h3>
-      <p style="color:var(--ink-soft);margin:0;">利用者名はイニシャルや記号に置き換えるなど、施設のルールに従ってご利用ください。本ツールは業務支援を目的としたもので、医療・介護上の最終判断は専門職が行ってください。</p>
+      <h3>うちの施設の様式に合わせてもらえますか？</h3>
+      <p style="color:var(--ink-soft);margin:0;">はい。個別開発プランで、貴施設の帳票様式・運用ルール・計算ロジックに合わせた専用ツールを作成できます。まずはお問い合わせください。</p>
     </div>
   </div>
 </section>
 
+<!-- 最終CTAバンド -->
+<section class="cta-band">
+  <h2>まずは無料で、現場がどれだけラクになるか試してみませんか？</h2>
+  <p>登録不要・インストール不要。今すぐブラウザでお使いいただけます。導入や個別開発のご相談もお気軽にどうぞ。</p>
+  <div class="cta" style="display:flex;gap:12px;justify-content:center;flex-wrap:wrap;">
+    <a class="btn btn-primary" href="#tools">無料でツールを使う</a>
+    <a class="btn btn-ghost" href="#contact-section">導入を相談する</a>
+  </div>
+</section>
+
+<!-- お問い合わせ -->
 <section class="section" id="contact-section" style="background:#fff;border-top:1px solid var(--line);">
   <div class="tool-wrap">
     <div id="contact-mount"></div>
