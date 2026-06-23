@@ -85,7 +85,7 @@ function selectedChips(container) {
    お問い合わせ（メール起動）
    静的サイトのため、入力内容を本文に差し込んでメーラーを起動します。
    =========================================================== */
-const CONTACT_EMAIL = "kiminari.takahahsi@pluspivot.co.jp";
+const CONTACT_EMAIL = "kiminari.takahashi@pluspivot.co.jp";
 const TOOL_OPTIONS = [
   "シフト作成ツール",
   "介護記録 作成支援",
