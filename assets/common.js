@@ -88,7 +88,7 @@ function selectedChips(container) {
 const CONTACT_EMAIL = "kiminari.takahashi@pluspivot.co.jp";
 // Web3Forms のアクセスキー（https://web3forms.com で上記メール宛に発行）。
 // ※このキーは「指定メールへの送信」専用で、公開しても問題ありません。
-const WEB3FORMS_ACCESS_KEY = "YOUR_ACCESS_KEY_HERE";
+const WEB3FORMS_ACCESS_KEY = "b52e86ba-a0e8-4d34-b071-e2c2c71fd95a";
 const TOOL_OPTIONS = [
   "シフト作成ツール",
   "介護記録 作成支援",
