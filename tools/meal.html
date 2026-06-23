@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>食事摂取量 記録 ｜ ケアスイート for Claude</title>
+<link rel="stylesheet" href="../assets/style.css">
+</head>
+<body>
+<header class="topbar">
+  <a class="brand" href="../index.html" style="color:var(--teal-dark);"><span class="logo">C</span> ケアスイート</a>
+  <nav><a href="../index.html">← ツール一覧</a></nav>
+</header>
+
+<main class="tool-wrap">
+  <div class="tool-head">
+    <span class="eyebrow">記録・モニタリング</span>
+    <h1>🍱 食事摂取量 記録</h1>
+    <p>主食・副食・水分を割合で記録。摂取量の低下を自動で検知し、低栄養リスクをお知らせします。</p>
+  </div>
+
+  <div class="card">
+    <div class="grid-3">
+      <div class="field"><label>利用者（記号）</label><input type="text" id="user" placeholder="A様"></div>
+      <div class="field"><label>日付</label><input type="date" id="date"></div>
+      <div class="field"><label>食事</label><select id="meal"><option>朝食</option><option>昼食</option><option>夕食</option><option>間食</option></select></div>
+    </div>
+    <div class="grid-3">
+      <div class="field"><label>主食（割合）</label>
+        <select id="staple"><option value="10">完食(10割)</option><option value="8">8割</option><option value="5">5割</option><option value="3">3割</option><option value="1">1割</option><option value="0">なし(0割)</option></select></div>
+      <div class="field"><label>副食（割合）</label>
+        <select id="side"><option value="10">完食(10割)</option><option value="8">8割</option><option value="5">5割</option><option value="3">3割</option><option value="1">1割</option><option value="0">なし(0割)</option></select></div>
+      <div class="field"><label>水分(mL)</label><input type="number" id="water" placeholder="150"></div>
+    </div>
+    <div class="field"><label>形態・特記 <span class="hint">（任意）</span></label>
+      <input type="text" id="note" placeholder="例：きざみ食／むせあり／自力摂取"></div>
+    <button class="btn btn-primary" onclick="add()">＋ 記録に追加</button>
+  </div>
+
+  <div class="card">
+    <h2>本日の記録</h2>
+    <div id="alert"></div>
+    <table><thead><tr><th>食事</th><th>主食</th><th>副食</th><th>水分</th><th>特記</th><th></th></tr></thead><tbody id="rows"></tbody></table>
+  </div>
+
+  <div class="card">
+    <h2>Claudeに相談</h2>
+    <div class="toolbar-row">
+      <button class="btn btn-primary" onclick="gen()">プロンプトを生成</button>
+      <button class="btn btn-ghost btn-sm" onclick="copyOutput('out')">コピー</button>
+      <div class="spacer"></div>
+      <button class="btn btn-ghost btn-sm" onclick="openClaude()">Claudeを開く ↗</button>
+    </div>
+    <div class="output" id="out"></div>
+  </div>
+</main>
+
+<script src="../assets/common.js"></script>
+<script>
+const KEY="cs_meal";
+document.getElementById("date").value=new Date().toISOString().slice(0,10);
+let records=Store.get(KEY,[]);
+function add(){
+  const r={
+    user:document.getElementById("user").value||"-",
+    date:document.getElementById("date").value,
+    meal:document.getElementById("meal").value,
+    staple:+document.getElementById("staple").value,
+    side:+document.getElementById("side").value,
+    water:document.getElementById("water").value,
+    note:document.getElementById("note").value
+  };
+  records.push(r); Store.set(KEY,records); render(); toast("追加しました ✓");
+}
+function del(i){records.splice(i,1);Store.set(KEY,records);render();}
+function todays(){return records.filter(r=>r.date===document.getElementById("date").value);}
+function render(){
+  const list=todays();
+  document.getElementById("rows").innerHTML = list.length? list.map(r=>{
+    const idx=records.indexOf(r);
+    const low = (r.staple+r.side)/2 <=3;
+    return `<tr><td>${r.meal}</td><td ${r.staple<=3?'style="color:var(--danger);font-weight:700;"':''}>${r.staple}割</td>
+      <td ${r.side<=3?'style="color:var(--danger);font-weight:700;"':''}>${r.side}割</td><td>${r.water||'-'}mL</td>
+      <td>${r.note||''}</td><td><button class="btn btn-danger btn-sm" onclick="del(${idx})">削除</button></td></tr>`;
+  }).join("") : `<tr><td colspan="6" class="hint">記録がありません</td></tr>`;
+  // 低栄養アラート
+  const lowMeals=list.filter(r=>(r.staple+r.side)/2<=3).length;
+  const el=document.getElementById("alert");
+  if(lowMeals>=2){
+    el.innerHTML=`<div class="note" style="background:#fef2f2;border-color:#fecaca;color:#991b1b;">⚠️ 本日 ${lowMeals} 食で摂取量が3割以下です。低栄養・脱水のリスクに注意し、看護師・管理栄養士へ共有を検討してください。</div>`;
+  } else el.innerHTML="";
+}
+function gen(){
+  const list=todays();
+  if(!list.length){toast("記録を追加してください");return;}
+  const user=document.getElementById("user").value||"利用者";
+  const detail=list.map(r=>`- ${r.meal}：主食${r.staple}割／副食${r.side}割／水分${r.water||'-'}mL${r.note?'（'+r.note+'）':''}`).join("\n");
+  const p=
+`あなたは介護施設の管理栄養士・看護師です。以下の本日の食事摂取状況をもとに助言してください。
+
+# 利用者
+${user}
+
+# 摂取記録
+${detail}
+
+# 出力
+1. 摂取量の評価（十分か／低下傾向か）
+2. 低栄養・脱水のリスクと観察ポイント
+3. 摂取量を上げるための具体的な工夫（食形態・声かけ・補助食品など3つ）
+4. 多職種で共有・相談すべき目安
+※嚥下や体調に関わる医療判断は専門職の評価を前提としてください。`;
+  document.getElementById("out").textContent=p; toast("生成しました ✓");
+}
+document.getElementById("date").addEventListener("change",render);
+render();
+</script>
+</body>
+</html>

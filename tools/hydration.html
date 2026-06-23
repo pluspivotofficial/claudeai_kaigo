@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>水分摂取 記録・管理 ｜ ケアスイート for Claude</title>
+<link rel="stylesheet" href="../assets/style.css">
+</head>
+<body>
+<header class="topbar">
+  <a class="brand" href="../index.html" style="color:var(--teal-dark);"><span class="logo">C</span> ケアスイート</a>
+  <nav><a href="../index.html">← ツール一覧</a></nav>
+</header>
+
+<main class="tool-wrap">
+  <div class="tool-head">
+    <span class="eyebrow">記録・モニタリング</span>
+    <h1>💧 水分摂取 記録・管理</h1>
+    <p>1日の水分摂取量を記録し、目標達成度を自動集計。脱水リスクの早期発見に。</p>
+  </div>
+
+  <div class="card">
+    <div class="grid-3">
+      <div class="field"><label>利用者（記号）</label><input type="text" id="user" placeholder="A様"></div>
+      <div class="field"><label>日付</label><input type="date" id="date"></div>
+      <div class="field"><label>1日の目標量(mL)</label><input type="number" id="goal" value="1500"></div>
+    </div>
+  </div>
+
+  <div class="card">
+    <h2>水分を記録</h2>
+    <div class="grid-3">
+      <div class="field"><label>時刻</label><input type="time" id="time"></div>
+      <div class="field"><label>種類</label>
+        <select id="kind"><option>お茶</option><option>水</option><option>味噌汁</option><option>ジュース</option><option>牛乳</option><option>経口補水液</option><option>ゼリー</option><option>その他</option></select>
+      </div>
+      <div class="field"><label>量(mL)</label><input type="number" id="amount" value="150"></div>
+    </div>
+    <button class="btn btn-primary" onclick="add()">＋ 記録に追加</button>
+  </div>
+
+  <div class="card">
+    <h2>本日の記録</h2>
+    <div id="summary" style="margin-bottom:16px;"></div>
+    <table><thead><tr><th>時刻</th><th>種類</th><th>量(mL)</th><th></th></tr></thead><tbody id="rows"></tbody></table>
+  </div>
+
+  <div class="card">
+    <h2>Claudeに相談</h2>
+    <p class="hint" style="margin-top:-6px;">本日の摂取状況をもとに、声かけ・対応のアドバイスを得る指示文を生成します。</p>
+    <div class="toolbar-row">
+      <button class="btn btn-primary" onclick="gen()">プロンプトを生成</button>
+      <button class="btn btn-ghost btn-sm" onclick="copyOutput('out')">コピー</button>
+      <div class="spacer"></div>
+      <button class="btn btn-ghost btn-sm" onclick="openClaude()">Claudeを開く ↗</button>
+    </div>
+    <div class="output" id="out"></div>
+  </div>
+</main>
+
+<script src="../assets/common.js"></script>
+<script>
+const KEY="cs_hydration";
+const today = new Date().toISOString().slice(0,10);
+document.getElementById("date").value = today;
+let records = Store.get(KEY, []);
+
+function add(){
+  const t=document.getElementById("time").value || new Date().toTimeString().slice(0,5);
+  const kind=document.getElementById("kind").value;
+  const amt=parseInt(document.getElementById("amount").value)||0;
+  if(amt<=0){toast("量を入力してください");return;}
+  records.push({date:document.getElementById("date").value,time:t,kind,amt});
+  records.sort((a,b)=>(a.time>b.time?1:-1));
+  Store.set(KEY,records); render();
+  toast("追加しました ✓");
+}
+function del(i){ records.splice(i,1); Store.set(KEY,records); render(); }
+function todays(){ return records.filter(r=>r.date===document.getElementById("date").value); }
+function render(){
+  const list=todays();
+  const tbody=document.getElementById("rows");
+  tbody.innerHTML = list.length? list.map((r,i)=>{
+    const idx=records.indexOf(r);
+    return `<tr><td>${r.time}</td><td>${r.kind}</td><td>${r.amt}</td><td><button class="btn btn-danger btn-sm" onclick="del(${idx})">削除</button></td></tr>`;
+  }).join("") : `<tr><td colspan="4" class="hint">記録がありません</td></tr>`;
+  const total=list.reduce((s,r)=>s+r.amt,0);
+  const goal=parseInt(document.getElementById("goal").value)||1500;
+  const pct=Math.round(total/goal*100);
+  const color = pct>=100?"var(--ok)": pct>=60?"var(--accent)":"var(--danger)";
+  const msg = pct>=100?"目標達成 ✓": pct>=60?"あと少し":"⚠ 摂取量が少なめ。声かけを";
+  document.getElementById("summary").innerHTML=
+   `<div style="display:flex;gap:24px;flex-wrap:wrap;align-items:baseline;">
+      <div><span style="font-size:2rem;font-weight:800;color:${color};">${total}</span> / ${goal} mL</div>
+      <div><span class="badge" style="background:${color};color:#fff;">${pct}% ${msg}</span></div>
+    </div>
+    <div style="height:10px;background:#e2e8f0;border-radius:999px;margin-top:10px;overflow:hidden;">
+      <div style="height:100%;width:${Math.min(pct,100)}%;background:${color};"></div></div>`;
+}
+function gen(){
+  const list=todays();
+  if(!list.length){toast("記録を追加してください");return;}
+  const user=document.getElementById("user").value||"利用者";
+  const goal=document.getElementById("goal").value;
+  const total=list.reduce((s,r)=>s+r.amt,0);
+  const detail=list.map(r=>`- ${r.time} ${r.kind} ${r.amt}mL`).join("\n");
+  const p=
+`あなたは介護施設の看護・介護職です。以下の利用者の本日の水分摂取状況をもとに、脱水予防の観点で助言してください。
+
+# 利用者
+${user}（目標 ${goal}mL/日、本日合計 ${total}mL）
+
+# 摂取記録
+${detail}
+
+# 出力
+1. 現状の評価（目標との差、時間帯の偏りなど）
+2. 脱水リスクの注意点と観察すべきサイン
+3. 無理なく水分を増やす具体的な声かけ・工夫（3つ）
+※医療判断が必要な場合は受診・看護師相談を促してください。`;
+  document.getElementById("out").textContent=p; toast("生成しました ✓");
+}
+document.getElementById("date").addEventListener("change",render);
+document.getElementById("goal").addEventListener("change",render);
+render();
+</script>
+</body>
+</html>

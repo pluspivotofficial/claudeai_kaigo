@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>申し送り 作成支援 ｜ ケアスイート for Claude</title>
+<link rel="stylesheet" href="../assets/style.css">
+</head>
+<body>
+<header class="topbar">
+  <a class="brand" href="../index.html" style="color:var(--teal-dark);"><span class="logo">C</span> ケアスイート</a>
+  <nav><a href="../index.html">← ツール一覧</a></nav>
+</header>
+
+<main class="tool-wrap">
+  <div class="tool-head">
+    <span class="eyebrow">業務・運営</span>
+    <h1>🔁 申し送り 作成支援</h1>
+    <p>利用者ごとの状況メモを入れると、漏れのない申し送り文に整形する指示文を生成します。</p>
+  </div>
+
+  <div class="note">⚠️ 利用者名は記号に置き換えてご利用ください。</div>
+
+  <div class="card">
+    <h2>1. 申し送り情報</h2>
+    <div class="grid-3">
+      <div class="field"><label>勤務帯</label><select id="shift"><option>日勤 → 夜勤</option><option>夜勤 → 日勤</option><option>早番 → 遅番</option><option>その他</option></select></div>
+      <div class="field"><label>記入者</label><input type="text" id="author" placeholder="記号でOK"></div>
+      <div class="field"><label>申し送りスタイル</label><select id="style"><option>箇条書き（簡潔）</option><option>利用者別ブロック</option><option>緊急度順</option></select></div>
+    </div>
+    <div class="field"><label>利用者ごとの状況メモ <span class="hint">（断片・話し言葉でOK）</span></label>
+      <textarea id="memo" rows="8" placeholder="例：&#10;A様：38.2℃発熱、昼から臥床。看護師報告済み、夜間検温指示あり&#10;B様：転倒なし。歩行ふらつき継続、トイレ付き添い必要&#10;C様：家族面会あり。退所相談の話が出た→相談員へ&#10;D様：便秘4日目、明日浣腸予定"></textarea>
+    </div>
+    <div class="field"><label>特に注意してほしい点 <span class="hint">（任意）</span></label>
+      <input type="text" id="alert" placeholder="例：夜間の見守り強化／インフル疑い者の動向"></div>
+  </div>
+
+  <div class="card">
+    <h2>2. Claude用プロンプトを生成</h2>
+    <div class="toolbar-row">
+      <button class="btn btn-primary" onclick="gen()">プロンプトを生成</button>
+      <button class="btn btn-ghost btn-sm" onclick="copyOutput('out')">コピー</button>
+      <div class="spacer"></div>
+      <button class="btn btn-ghost btn-sm" onclick="openClaude()">Claudeを開く ↗</button>
+    </div>
+    <div class="output" id="out"></div>
+  </div>
+</main>
+
+<script src="../assets/common.js"></script>
+<script>
+function gen(){
+  const memo=document.getElementById("memo").value.trim();
+  if(!memo){toast("状況メモを入力してください");return;}
+  const shift=document.getElementById("shift").value;
+  const author=document.getElementById("author").value||"-";
+  const style=document.getElementById("style").value;
+  const alert=document.getElementById("alert").value.trim();
+  const p=
+`あなたは介護施設のリーダー職員です。以下のメモを、次の勤務者に確実に伝わる申し送り文に整えてください。
+
+# 申し送り条件
+- 勤務帯：${shift}
+- 記入者：${author}
+- 形式：${style}
+
+# 整形ルール
+- 緊急・要対応（発熱・転倒・医療指示・家族対応など）は冒頭に「【要対応】」として明示
+- 各利用者について「状態／実施した対応／次勤務での依頼事項」が分かるようにする
+- メモにない情報は補わない。曖昧な点は「※要確認」と記す
+- 簡潔で、読み上げ・引き継ぎしやすい文にする
+${alert ? "- 特に注意：" + alert : ""}
+
+# 状況メモ
+${memo}`;
+  document.getElementById("out").textContent=p; toast("生成しました ✓");
+}
+</script>
+</body>
+</html>

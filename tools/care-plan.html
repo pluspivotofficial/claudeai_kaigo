@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ケアプラン 文案作成 ｜ ケアスイート for Claude</title>
+<link rel="stylesheet" href="../assets/style.css">
+</head>
+<body>
+<header class="topbar">
+  <a class="brand" href="../index.html" style="color:var(--teal-dark);"><span class="logo">C</span> ケアスイート</a>
+  <nav><a href="../index.html">← ツール一覧</a></nav>
+</header>
+
+<main class="tool-wrap">
+  <div class="tool-head">
+    <span class="eyebrow">業務・運営</span>
+    <h1>📋 ケアプラン 文案作成</h1>
+    <p>アセスメント情報から、ニーズ・長期/短期目標・サービス内容の<b>たたき台</b>を作る指示文を生成します。</p>
+  </div>
+
+  <div class="note">⚠️ 生成物はあくまで文案（下書き）です。アセスメント・本人/家族の意向確認・専門職の判断を経て、ケアマネジャーが最終決定してください。</div>
+
+  <div class="card">
+    <h2>1. 利用者情報</h2>
+    <div class="grid-3">
+      <div class="field"><label>利用者（記号）</label><input type="text" id="user" placeholder="A様"></div>
+      <div class="field"><label>要介護度</label><select id="care"><option>要支援1</option><option>要支援2</option><option>要介護1</option><option>要介護2</option><option>要介護3</option><option>要介護4</option><option>要介護5</option></select></div>
+      <div class="field"><label>主な疾患</label><input type="text" id="disease" placeholder="例：脳梗塞後遺症、軽度認知症"></div>
+    </div>
+    <div class="field"><label>本人の希望・意向</label>
+      <textarea id="hope" rows="2" placeholder="例：トイレは自分で行きたい。家族と外出したい。"></textarea></div>
+    <div class="field"><label>現在の状態（ADL・IADL・認知・社会面など）</label>
+      <textarea id="state" rows="4" placeholder="例：&#10;・歩行は手すり伝いで可、長距離は車椅子&#10;・排泄は一部介助、夜間はポータブル&#10;・短期記憶低下あり、見当識は概ね保たれる&#10;・入浴は週2回、声かけと一部介助が必要"></textarea></div>
+    <div class="field"><label>家族の状況・意向 <span class="hint">（任意）</span></label>
+      <input type="text" id="family" placeholder="例：長女が週末に支援。平日の見守りに不安。"></div>
+  </div>
+
+  <div class="card">
+    <h2>2. Claude用プロンプトを生成</h2>
+    <div class="toolbar-row">
+      <button class="btn btn-primary" onclick="gen()">プロンプトを生成</button>
+      <button class="btn btn-ghost btn-sm" onclick="copyOutput('out')">コピー</button>
+      <div class="spacer"></div>
+      <button class="btn btn-ghost btn-sm" onclick="openClaude()">Claudeを開く ↗</button>
+    </div>
+    <div class="output" id="out"></div>
+  </div>
+</main>
+
+<script src="../assets/common.js"></script>
+<script>
+function gen(){
+  const state=document.getElementById("state").value.trim();
+  if(!state){toast("現在の状態を入力してください");return;}
+  const user=document.getElementById("user").value||"利用者";
+  const care=document.getElementById("care").value;
+  const disease=document.getElementById("disease").value||"記載なし";
+  const hope=document.getElementById("hope").value.trim()||"記載なし";
+  const family=document.getElementById("family").value.trim()||"記載なし";
+  const p=
+`あなたは経験豊富な介護支援専門員（ケアマネジャー）です。以下のアセスメント情報をもとに、居宅/施設サービス計画書の文案（たたき台）を作成してください。
+
+# 利用者情報
+- ${user}（${care}）
+- 主な疾患：${disease}
+- 本人の希望・意向：${hope}
+- 現在の状態：
+${state}
+- 家族の状況・意向：${family}
+
+# 作成してほしい内容
+1. 利用者・家族の意向（要約）
+2. 総合的な援助の方針
+3. 生活全般の解決すべき課題（ニーズ）：3〜5項目
+4. 各ニーズに対する「長期目標／短期目標（期間の目安つき）」
+5. 各目標に対する「サービス内容・留意点」の例
+
+# ルール
+- 本人の「したい」を尊重した自立支援の視点で書く
+- 専門用語と平易な表現を併用する
+- 情報が不足する箇所は決めつけず「※要アセスメント」と記す
+- これは下書きであり、最終決定はケアマネ・多職種・本人/家族で行う前提で書く`;
+  document.getElementById("out").textContent=p; toast("生成しました ✓");
+}
+</script>
+</body>
+</html>

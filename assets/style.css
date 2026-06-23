@@ -1,0 +1,224 @@
+/* ===========================================================
+   ケアスイート for Claude  ── 共通スタイル
+   介護施設向け Claude 活用ツールキット
+   =========================================================== */
+
+:root {
+  --teal: #0f766e;
+  --teal-dark: #115e59;
+  --teal-light: #5eead4;
+  --bg: #f3faf8;
+  --card: #ffffff;
+  --ink: #1f2937;
+  --ink-soft: #4b5563;
+  --line: #e2e8f0;
+  --accent: #f59e0b;
+  --danger: #dc2626;
+  --ok: #16a34a;
+  --radius: 16px;
+  --shadow: 0 4px 18px rgba(15, 118, 110, 0.08);
+  --shadow-lg: 0 12px 36px rgba(15, 118, 110, 0.14);
+}
+
+* { box-sizing: border-box; }
+
+html { scroll-behavior: smooth; }
+
+body {
+  margin: 0;
+  font-family: "Hiragino Sans", "Hiragino Kaku Gothic ProN", "Noto Sans JP",
+    "Yu Gothic", Meiryo, system-ui, sans-serif;
+  color: var(--ink);
+  background: var(--bg);
+  line-height: 1.7;
+  -webkit-font-smoothing: antialiased;
+}
+
+a { color: var(--teal); text-decoration: none; }
+a:hover { text-decoration: underline; }
+
+/* ---------- トップバー ---------- */
+.topbar {
+  position: sticky;
+  top: 0;
+  z-index: 50;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 12px 22px;
+  background: rgba(255, 255, 255, 0.92);
+  backdrop-filter: blur(10px);
+  border-bottom: 1px solid var(--line);
+}
+.brand {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-weight: 800;
+  color: var(--teal-dark);
+  font-size: 1.05rem;
+}
+.brand .logo {
+  width: 34px; height: 34px;
+  border-radius: 10px;
+  background: linear-gradient(135deg, var(--teal), var(--teal-light));
+  display: grid; place-items: center;
+  color: #fff; font-weight: 900;
+}
+.topbar nav a { margin-left: 16px; color: var(--ink-soft); font-weight: 600; font-size: .92rem; }
+
+/* ---------- ボタン ---------- */
+.btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 11px 20px;
+  border-radius: 12px;
+  border: none;
+  font-weight: 700;
+  font-size: .95rem;
+  cursor: pointer;
+  transition: transform .12s ease, box-shadow .12s ease, background .12s ease;
+  font-family: inherit;
+}
+.btn:active { transform: translateY(1px); }
+.btn-primary { background: var(--teal); color: #fff; box-shadow: var(--shadow); }
+.btn-primary:hover { background: var(--teal-dark); text-decoration: none; }
+.btn-ghost { background: #fff; color: var(--teal-dark); border: 1.5px solid var(--teal-light); }
+.btn-ghost:hover { background: #ecfdf5; text-decoration: none; }
+.btn-sm { padding: 7px 14px; font-size: .85rem; border-radius: 10px; }
+.btn-danger { background: #fff; color: var(--danger); border: 1.5px solid #fecaca; }
+
+/* ---------- レイアウト ---------- */
+.wrap { max-width: 1080px; margin: 0 auto; padding: 0 22px; }
+.tool-wrap { max-width: 860px; margin: 0 auto; padding: 0 22px; }
+
+.tool-head {
+  margin: 30px 0 22px;
+}
+.tool-head .eyebrow {
+  display: inline-block;
+  font-size: .8rem;
+  font-weight: 700;
+  color: var(--teal);
+  background: #d1fae5;
+  padding: 4px 12px;
+  border-radius: 999px;
+  margin-bottom: 12px;
+}
+.tool-head h1 { margin: 0 0 8px; font-size: 1.8rem; }
+.tool-head p { margin: 0; color: var(--ink-soft); }
+
+/* ---------- カード ---------- */
+.card {
+  background: var(--card);
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  padding: 24px;
+  box-shadow: var(--shadow);
+  margin-bottom: 22px;
+}
+.card h2 { margin: 0 0 16px; font-size: 1.15rem; color: var(--teal-dark); }
+.card h3 { margin: 18px 0 10px; font-size: 1rem; }
+
+/* ---------- フォーム ---------- */
+.field { margin-bottom: 16px; }
+.field label { display: block; font-weight: 700; font-size: .9rem; margin-bottom: 6px; color: var(--ink); }
+.field .hint { font-weight: 400; color: var(--ink-soft); font-size: .82rem; }
+input[type=text], input[type=number], input[type=date], input[type=time],
+select, textarea {
+  width: 100%;
+  padding: 11px 13px;
+  border: 1.5px solid var(--line);
+  border-radius: 11px;
+  font-size: .98rem;
+  font-family: inherit;
+  background: #fff;
+  color: var(--ink);
+  transition: border-color .12s ease, box-shadow .12s ease;
+}
+input:focus, select:focus, textarea:focus {
+  outline: none;
+  border-color: var(--teal-light);
+  box-shadow: 0 0 0 3px rgba(94, 234, 212, 0.35);
+}
+textarea { resize: vertical; min-height: 90px; }
+.grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+.grid-3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; }
+@media (max-width: 640px) { .grid-2, .grid-3 { grid-template-columns: 1fr; } }
+
+.chips { display: flex; flex-wrap: wrap; gap: 8px; }
+.chip {
+  padding: 7px 14px;
+  border-radius: 999px;
+  border: 1.5px solid var(--line);
+  background: #fff;
+  cursor: pointer;
+  font-size: .88rem;
+  user-select: none;
+  transition: all .12s ease;
+}
+.chip.on { background: var(--teal); color: #fff; border-color: var(--teal); }
+
+/* ---------- 出力（AIプロンプト） ---------- */
+.output {
+  background: #0f172a;
+  color: #e2e8f0;
+  border-radius: 12px;
+  padding: 18px;
+  font-family: ui-monospace, "SF Mono", Menlo, Consolas, monospace;
+  font-size: .88rem;
+  white-space: pre-wrap;
+  word-break: break-word;
+  max-height: 420px;
+  overflow: auto;
+  line-height: 1.6;
+}
+.output:empty::before { content: "ここに生成結果が表示されます"; color: #64748b; }
+
+.toolbar-row { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; margin-bottom: 14px; }
+.spacer { flex: 1; }
+
+.toast {
+  position: fixed;
+  bottom: 24px; left: 50%;
+  transform: translateX(-50%) translateY(20px);
+  background: var(--ink);
+  color: #fff;
+  padding: 12px 22px;
+  border-radius: 12px;
+  font-weight: 700;
+  font-size: .9rem;
+  opacity: 0;
+  pointer-events: none;
+  transition: all .25s ease;
+  z-index: 100;
+}
+.toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+
+/* ---------- テーブル ---------- */
+table { width: 100%; border-collapse: collapse; font-size: .9rem; }
+th, td { padding: 9px 10px; border-bottom: 1px solid var(--line); text-align: left; }
+th { background: #f0fdfa; color: var(--teal-dark); font-weight: 700; }
+tr:hover td { background: #f8fafc; }
+
+.note {
+  background: #fffbeb;
+  border: 1px solid #fde68a;
+  border-radius: 12px;
+  padding: 14px 16px;
+  font-size: .88rem;
+  color: #92400e;
+  margin-bottom: 18px;
+}
+.badge { display:inline-block; font-size:.74rem; font-weight:700; padding:2px 9px; border-radius:999px; background:#d1fae5; color:var(--teal-dark); }
+
+footer.site {
+  margin-top: 50px;
+  padding: 30px 22px;
+  text-align: center;
+  color: var(--ink-soft);
+  font-size: .85rem;
+  border-top: 1px solid var(--line);
+}

@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>加算区分 判定ツール ｜ ケアスイート for Claude</title>
+<link rel="stylesheet" href="../assets/style.css">
+</head>
+<body>
+<header class="topbar">
+  <a class="brand" href="../index.html" style="color:var(--teal-dark);"><span class="logo">C</span> ケアスイート</a>
+  <nav><a href="../index.html">← ツール一覧</a></nav>
+</header>
+
+<main class="tool-wrap">
+  <div class="tool-head">
+    <span class="eyebrow">業務・運営</span>
+    <h1>🧮 加算区分 判定ツール</h1>
+    <p>質問に答えると、検討対象となりうる加算を一覧化します。算定要件の最終確認に。</p>
+  </div>
+
+  <div class="note">⚠️ 本ツールは検討の目安です。実際の算定可否は<b>最新の介護報酬告示・自治体の通知・指定基準</b>を必ずご確認ください。報酬改定で要件は変わります。</div>
+
+  <div class="card">
+    <h2>1. サービス種別</h2>
+    <div class="field">
+      <select id="service">
+        <option>特別養護老人ホーム（介護福祉施設サービス）</option>
+        <option>介護老人保健施設</option>
+        <option>通所介護（デイサービス）</option>
+        <option>訪問介護</option>
+        <option>認知症対応型共同生活介護（グループホーム）</option>
+      </select>
+    </div>
+  </div>
+
+  <div class="card">
+    <h2>2. 体制チェック</h2>
+    <p class="hint" style="margin-top:-6px;">あてはまる項目にチェックしてください。</p>
+    <div id="qs"></div>
+  </div>
+
+  <div class="card">
+    <h2>3. 判定結果</h2>
+    <button class="btn btn-primary" onclick="judge()">判定する</button>
+    <div id="result" style="margin-top:18px;"></div>
+  </div>
+
+  <div class="card">
+    <h2>4. Claudeで要件を詳しく確認</h2>
+    <p class="hint" style="margin-top:-6px;">チェック対象の加算について、最新要件・必要書類をClaudeに確認する指示文を作ります。</p>
+    <div class="toolbar-row">
+      <button class="btn btn-primary" onclick="genPrompt()">プロンプトを生成</button>
+      <button class="btn btn-ghost btn-sm" onclick="copyOutput('out')">コピー</button>
+      <div class="spacer"></div>
+      <button class="btn btn-ghost btn-sm" onclick="openClaude()">Claudeを開く ↗</button>
+    </div>
+    <div class="output" id="out"></div>
+  </div>
+</main>
+
+<script src="../assets/common.js"></script>
+<script>
+// 代表的な体制系の質問（目安）。詳細要件は告示参照。
+const QUESTIONS = [
+  { id:"q1", text:"介護職員等の処遇改善に関する計画書を提出し、要件を満たしている", kasan:"処遇改善加算（介護職員等処遇改善加算）" },
+  { id:"q2", text:"サービス提供体制強化のため、勤続年数や介護福祉士の割合が一定以上である", kasan:"サービス提供体制強化加算" },
+  { id:"q3", text:"看護職員を配置し、医療的ケア・看取りの体制がある", kasan:"看護体制加算／看取り介護加算（要件確認）" },
+  { id:"q4", text:"管理栄養士による栄養ケア・マネジメントを行っている", kasan:"栄養マネジメント強化加算" },
+  { id:"q5", text:"口腔衛生管理体制を整え、歯科医師等と連携している", kasan:"口腔衛生管理加算" },
+  { id:"q6", text:"個別機能訓練計画に基づき機能訓練指導員が訓練を実施している", kasan:"個別機能訓練加算" },
+  { id:"q7", text:"褥瘡の発生リスク評価とケア計画を継続的に実施している", kasan:"褥瘡マネジメント加算" },
+  { id:"q8", text:"排せつ状態の改善に向けた支援計画を多職種で作成している", kasan:"排せつ支援加算" },
+  { id:"q9", text:"自立支援・科学的介護のためLIFEへデータ提出・フィードバック活用をしている", kasan:"科学的介護推進体制加算（LIFE関連）" },
+  { id:"q10", text:"認知症ケアに関する研修・専門人材の配置や対応体制がある", kasan:"認知症専門ケア加算" },
+];
+const qsEl = document.getElementById("qs");
+QUESTIONS.forEach(q=>{
+  const d = document.createElement("label");
+  d.className = "field";
+  d.style.cssText = "display:flex;gap:10px;align-items:flex-start;font-weight:500;cursor:pointer;background:#f8fafc;padding:12px;border-radius:11px;";
+  d.innerHTML = `<input type="checkbox" value="${q.id}" style="width:auto;margin-top:4px;"> <span>${q.text}<br><span class="badge">→ ${q.kasan}</span></span>`;
+  qsEl.appendChild(d);
+});
+
+function checked() {
+  return QUESTIONS.filter(q=>qsEl.querySelector(`input[value="${q.id}"]`).checked);
+}
+function judge() {
+  const c = checked();
+  const r = document.getElementById("result");
+  if (!c.length) { r.innerHTML = '<p class="hint">チェック項目がありません。あてはまる体制にチェックしてください。</p>'; return; }
+  r.innerHTML = `<p>以下の加算が<b>検討対象</b>になりえます（${c.length}件）。要件の詳細確認へお進みください。</p>
+    <ul>${c.map(q=>`<li><b>${q.kasan}</b></li>`).join("")}</ul>
+    <div class="note" style="margin-top:14px;">※ チェック＝算定可能ではありません。人員配置・実績・書類など細目の充足が必要です。</div>`;
+}
+function genPrompt() {
+  const c = checked();
+  if (!c.length) { toast("先にチェック・判定してください"); return; }
+  const service = document.getElementById("service").value;
+  const list = c.map(q=>"- "+q.kasan).join("\n");
+  const p =
+`あなたは介護報酬制度に詳しいコンサルタントです。以下のサービスで検討中の加算について、最新（直近の介護報酬改定時点）の算定要件を整理してください。
+
+# サービス種別
+${service}
+
+# 確認したい加算
+${list}
+
+# 出力（加算ごとに）
+1. 算定要件（人員・体制・実績・LIFE提出有無など）
+2. 必要な書類・記録
+3. よくある算定漏れ・指導で指摘されやすい点
+4. 区分が複数ある場合は区分ごとの違い
+
+# 注意
+- 制度は改定で変わるため、回答の最後に「必ず最新の告示・自治体通知で確認が必要」と明記してください。
+- 不確実な点は推測せず「要確認」と示してください。`;
+  document.getElementById("out").textContent = p;
+  toast("生成しました ✓");
+}
+</script>
+</body>
+</html>

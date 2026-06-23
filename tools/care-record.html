@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>介護記録 作成支援 ｜ ケアスイート for Claude</title>
+<link rel="stylesheet" href="../assets/style.css">
+</head>
+<body>
+<header class="topbar">
+  <a class="brand" href="../index.html" style="color:var(--teal-dark);"><span class="logo">C</span> ケアスイート</a>
+  <nav><a href="../index.html">← ツール一覧</a></nav>
+</header>
+
+<main class="tool-wrap">
+  <div class="tool-head">
+    <span class="eyebrow">記録・モニタリング</span>
+    <h1>🗒️ 介護記録 作成支援</h1>
+    <p>走り書きのメモを入れるだけ。Claude用の指示文を作り、整った記録文に仕上げます。</p>
+  </div>
+
+  <div class="note">⚠️ 利用者名は「A様」「Bさん」などに置き換えてご利用ください。生成文は必ず内容を確認のうえ記録してください。</div>
+
+  <div class="card">
+    <h2>1. 記録したい内容</h2>
+    <div class="field">
+      <label>現場メモ・箇条書き <span class="hint">（話し言葉・断片でOK）</span></label>
+      <textarea id="memo" rows="6" placeholder="例：&#10;・朝食 主食8割 副食5割&#10;・午前 入浴拒否あり 声かけで対応&#10;・午後 レク参加 笑顔みられる&#10;・夕方 トイレ誘導 自立排泄"></textarea>
+    </div>
+    <div class="grid-2">
+      <div class="field">
+        <label>記録の形式</label>
+        <select id="format">
+          <option value="経過記録（時系列）">経過記録（時系列）</option>
+          <option value="SOAP形式（S/O/A/P）">SOAP形式（S/O/A/P）</option>
+          <option value="フォーカスチャーティング（F-DAR）">フォーカスチャーティング（F-DAR）</option>
+          <option value="三大介護（食事・排泄・入浴）別">三大介護（食事・排泄・入浴）別</option>
+        </select>
+      </div>
+      <div class="field">
+        <label>文体</label>
+        <select id="tone">
+          <option value="です・ます調（丁寧）">です・ます調（丁寧）</option>
+          <option value="だ・である調（簡潔）">だ・である調（簡潔）</option>
+          <option value="体言止め中心（短文）">体言止め中心（短文）</option>
+        </select>
+      </div>
+    </div>
+    <div class="field">
+      <label>補足・配慮事項 <span class="hint">（任意）</span></label>
+      <input type="text" id="extra" placeholder="例：家族へ共有予定／ADLの変化に注目">
+    </div>
+  </div>
+
+  <div class="card">
+    <h2>2. Claude用プロンプトを生成</h2>
+    <div class="toolbar-row">
+      <button class="btn btn-primary" onclick="gen()">プロンプトを生成</button>
+      <button class="btn btn-ghost btn-sm" onclick="copyOutput('out')">コピー</button>
+      <div class="spacer"></div>
+      <button class="btn btn-ghost btn-sm" onclick="openClaude()">Claudeを開く ↗</button>
+    </div>
+    <div class="output" id="out"></div>
+    <p class="hint" style="margin-top:12px;">生成された文をコピーし、Claudeに貼り付けて送信してください。</p>
+  </div>
+</main>
+
+<script src="../assets/common.js"></script>
+<script>
+function gen() {
+  const memo = document.getElementById("memo").value.trim();
+  if (!memo) { toast("現場メモを入力してください"); return; }
+  const format = document.getElementById("format").value;
+  const tone = document.getElementById("tone").value;
+  const extra = document.getElementById("extra").value.trim();
+
+  const p =
+`あなたは介護施設のベテラン介護福祉士です。以下の現場メモをもとに、介護記録として適切な文章に整えてください。
+
+# 出力形式
+${format}
+
+# 文体
+${tone}
+
+# ルール
+- 事実と主観（職員の判断・推測）を区別して書く
+- 推測には「〜と思われる」等を用い、断定しない
+- 専門用語は適切に使いつつ、誰が読んでも分かる表現にする
+- メモにない情報は創作しない。不足があれば「※要確認」として末尾に列挙する
+${extra ? "- 補足配慮：" + extra : ""}
+
+# 現場メモ
+${memo}`;
+
+  document.getElementById("out").textContent = p;
+  toast("生成しました ✓");
+}
+</script>
+</body>
+</html>

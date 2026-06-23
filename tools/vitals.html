@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>バイタル記録 ｜ ケアスイート for Claude</title>
+<link rel="stylesheet" href="../assets/style.css">
+</head>
+<body>
+<header class="topbar">
+  <a class="brand" href="../index.html" style="color:var(--teal-dark);"><span class="logo">C</span> ケアスイート</a>
+  <nav><a href="../index.html">← ツール一覧</a></nav>
+</header>
+
+<main class="tool-wrap">
+  <div class="tool-head">
+    <span class="eyebrow">記録・モニタリング</span>
+    <h1>🌡️ バイタル記録</h1>
+    <p>体温・血圧・脈拍・SpO₂・呼吸を記録。基準値から外れた値を自動でハイライトします。</p>
+  </div>
+
+  <div class="note">⚠️ 基準値はあくまで一般的な目安です。利用者個別の基準・医師の指示を優先してください。異常時は速やかに看護師・医療機関へ。</div>
+
+  <div class="card">
+    <h2>測定値を入力</h2>
+    <div class="grid-3">
+      <div class="field"><label>利用者（記号）</label><input type="text" id="user" placeholder="A様"></div>
+      <div class="field"><label>日付</label><input type="date" id="date"></div>
+      <div class="field"><label>時刻</label><input type="time" id="time"></div>
+    </div>
+    <div class="grid-3">
+      <div class="field"><label>体温(℃)</label><input type="number" step="0.1" id="temp" placeholder="36.5"></div>
+      <div class="field"><label>脈拍(回/分)</label><input type="number" id="pulse" placeholder="72"></div>
+      <div class="field"><label>SpO₂(%)</label><input type="number" id="spo2" placeholder="98"></div>
+    </div>
+    <div class="grid-3">
+      <div class="field"><label>収縮期血圧(上)</label><input type="number" id="sbp" placeholder="120"></div>
+      <div class="field"><label>拡張期血圧(下)</label><input type="number" id="dbp" placeholder="78"></div>
+      <div class="field"><label>呼吸(回/分)</label><input type="number" id="resp" placeholder="16"></div>
+    </div>
+    <button class="btn btn-primary" onclick="add()">＋ 記録に追加</button>
+  </div>
+
+  <div class="card">
+    <h2>記録一覧</h2>
+    <div style="overflow:auto;">
+    <table><thead><tr><th>日時</th><th>利用者</th><th>体温</th><th>血圧</th><th>脈拍</th><th>SpO₂</th><th>呼吸</th><th></th></tr></thead><tbody id="rows"></tbody></table>
+    </div>
+    <p class="hint" style="margin-top:10px;">🔴 基準値外の値は赤く表示されます。</p>
+  </div>
+
+  <div class="card">
+    <h2>Claudeに相談</h2>
+    <div class="toolbar-row">
+      <button class="btn btn-primary" onclick="gen()">最新値で相談プロンプト生成</button>
+      <button class="btn btn-ghost btn-sm" onclick="copyOutput('out')">コピー</button>
+      <div class="spacer"></div>
+      <button class="btn btn-ghost btn-sm" onclick="openClaude()">Claudeを開く ↗</button>
+    </div>
+    <div class="output" id="out"></div>
+  </div>
+</main>
+
+<script src="../assets/common.js"></script>
+<script>
+const KEY="cs_vitals";
+document.getElementById("date").value=new Date().toISOString().slice(0,10);
+let records=Store.get(KEY,[]);
+
+// 一般的な基準値（目安）
+function flag(v){
+  const f={};
+  if(v.temp!==''&&(+v.temp>=37.5||+v.temp<35.0)) f.temp=1;
+  if(v.spo2!==''&&+v.spo2<93) f.spo2=1;
+  if(v.pulse!==''&&(+v.pulse>100||+v.pulse<50)) f.pulse=1;
+  if(v.sbp!==''&&(+v.sbp>=140||+v.sbp<90)) f.sbp=1;
+  if(v.dbp!==''&&(+v.dbp>=90)) f.dbp=1;
+  if(v.resp!==''&&(+v.resp>24||+v.resp<10)) f.resp=1;
+  return f;
+}
+function add(){
+  const v={
+    user:document.getElementById("user").value||"-",
+    date:document.getElementById("date").value,
+    time:document.getElementById("time").value||new Date().toTimeString().slice(0,5),
+    temp:document.getElementById("temp").value,
+    pulse:document.getElementById("pulse").value,
+    spo2:document.getElementById("spo2").value,
+    sbp:document.getElementById("sbp").value,
+    dbp:document.getElementById("dbp").value,
+    resp:document.getElementById("resp").value,
+  };
+  records.unshift(v); Store.set(KEY,records); render(); toast("追加しました ✓");
+}
+function del(i){records.splice(i,1);Store.set(KEY,records);render();}
+function cell(val,bad){ if(val==='')return"-"; return bad?`<span style="color:var(--danger);font-weight:800;">${val}🔴</span>`:val; }
+function render(){
+  document.getElementById("rows").innerHTML = records.length? records.map((v,i)=>{
+    const f=flag(v);
+    const bp = (v.sbp||v.dbp)? `${cell(v.sbp,f.sbp)}/${cell(v.dbp,f.dbp)}`:"-";
+    return `<tr><td>${v.date.slice(5)} ${v.time}</td><td>${v.user}</td>
+      <td>${cell(v.temp,f.temp)}</td><td>${bp}</td><td>${cell(v.pulse,f.pulse)}</td>
+      <td>${cell(v.spo2,f.spo2)}</td><td>${cell(v.resp,f.resp)}</td>
+      <td><button class="btn btn-danger btn-sm" onclick="del(${i})">削除</button></td></tr>`;
+  }).join("") : `<tr><td colspan="8" class="hint">記録がありません</td></tr>`;
+}
+function gen(){
+  if(!records.length){toast("記録を追加してください");return;}
+  const v=records[0]; const f=flag(v);
+  const abn=Object.keys(f).length;
+  const p=
+`あなたは介護施設の看護師です。以下のバイタルサインを評価し、介護職への助言をしてください。
+
+# 利用者
+${v.user}（${v.date} ${v.time} 測定）
+
+# 測定値
+- 体温：${v.temp||'-'}℃
+- 血圧：${v.sbp||'-'}/${v.dbp||'-'} mmHg
+- 脈拍：${v.pulse||'-'} 回/分
+- SpO₂：${v.spo2||'-'} %
+- 呼吸：${v.resp||'-'} 回/分
+
+# 出力
+1. 各値の一般的な評価（基準内/要注意）
+2. ${abn?'基準を外れている値について':'全体として'}考えられる状態と観察ポイント
+3. 介護職が取るべき初期対応と、看護師・医師へ報告すべき目安
+※医療判断は医師が行うことを前提に、慎重に助言してください。`;
+  document.getElementById("out").textContent=p; toast("生成しました ✓");
+}
+render();
+</script>
+</body>
+</html>

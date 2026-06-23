@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>シフト作成ツール ｜ ケアスイート for Claude</title>
+<link rel="stylesheet" href="../assets/style.css">
+</head>
+<body>
+<header class="topbar">
+  <a class="brand" href="../index.html" style="color:var(--teal-dark);"><span class="logo">C</span> ケアスイート</a>
+  <nav><a href="../index.html">← ツール一覧</a></nav>
+</header>
+
+<main class="tool-wrap">
+  <div class="tool-head">
+    <span class="eyebrow">業務・運営</span>
+    <h1>📅 シフト作成ツール</h1>
+    <p>職員・勤務区分・希望休・配置ルールを入力。Claudeで公平なシフト案を作る指示文を生成します。</p>
+  </div>
+
+  <div class="card">
+    <h2>1. 基本設定</h2>
+    <div class="grid-3">
+      <div class="field"><label>対象期間</label><input type="text" id="period" placeholder="例：2026年7月（1ヶ月）"></div>
+      <div class="field"><label>施設形態</label>
+        <select id="facility">
+          <option>特別養護老人ホーム</option><option>介護老人保健施設</option>
+          <option>グループホーム</option><option>デイサービス</option>
+          <option>有料老人ホーム</option><option>訪問介護</option>
+        </select>
+      </div>
+      <div class="field"><label>勤務区分</label><input type="text" id="kinds" value="早番・日勤・遅番・夜勤・明け・公休"></div>
+    </div>
+  </div>
+
+  <div class="card">
+    <h2>2. 職員リスト</h2>
+    <table id="tbl">
+      <thead><tr><th>氏名/記号</th><th>常勤/非常勤</th><th>夜勤可</th><th>希望休・制約</th><th></th></tr></thead>
+      <tbody id="rows"></tbody>
+    </table>
+    <button class="btn btn-ghost btn-sm" style="margin-top:14px;" onclick="addRow()">＋ 職員を追加</button>
+  </div>
+
+  <div class="card">
+    <h2>3. 配置ルール</h2>
+    <div class="grid-2">
+      <div class="field"><label>日中の最低配置人数</label><input type="text" id="dayMin" placeholder="例：日勤3名以上"></div>
+      <div class="field"><label>夜勤の配置人数</label><input type="text" id="nightMin" placeholder="例：夜勤2名（うち1名は常勤）"></div>
+    </div>
+    <div class="field"><label>その他のルール・配慮 <span class="hint">（任意）</span></label>
+      <textarea id="rules" rows="3" placeholder="例：&#10;・夜勤明けの翌日は公休または日勤&#10;・連続勤務は5日まで&#10;・新人は単独夜勤を避ける"></textarea>
+    </div>
+  </div>
+
+  <div class="card">
+    <h2>4. Claude用プロンプトを生成</h2>
+    <div class="toolbar-row">
+      <button class="btn btn-primary" onclick="gen()">プロンプトを生成</button>
+      <button class="btn btn-ghost btn-sm" onclick="copyOutput('out')">コピー</button>
+      <div class="spacer"></div>
+      <button class="btn btn-ghost btn-sm" onclick="openClaude()">Claudeを開く ↗</button>
+    </div>
+    <div class="output" id="out"></div>
+  </div>
+</main>
+
+<script src="../assets/common.js"></script>
+<script>
+const KEY = "cs_shift_staff";
+function addRow(d={}) {
+  const tr = document.createElement("tr");
+  tr.innerHTML = `
+    <td><input type="text" class="s-name" value="${d.name||''}" placeholder="A職員"></td>
+    <td><select class="s-emp"><option ${d.emp==='常勤'?'selected':''}>常勤</option><option ${d.emp==='非常勤'?'selected':''}>非常勤</option></select></td>
+    <td style="text-align:center;"><input type="checkbox" class="s-night" ${d.night?'checked':''}></td>
+    <td><input type="text" class="s-req" value="${d.req||''}" placeholder="例：毎週日曜休／7/10休"></td>
+    <td><button class="btn btn-danger btn-sm" onclick="this.closest('tr').remove();save()">削除</button></td>`;
+  document.getElementById("rows").appendChild(tr);
+  tr.querySelectorAll("input,select").forEach(el=>el.addEventListener("change",save));
+}
+function readStaff() {
+  return [...document.querySelectorAll("#rows tr")].map(tr=>({
+    name: tr.querySelector(".s-name").value,
+    emp: tr.querySelector(".s-emp").value,
+    night: tr.querySelector(".s-night").checked,
+    req: tr.querySelector(".s-req").value
+  })).filter(s=>s.name.trim());
+}
+function save(){ Store.set(KEY, readStaff()); }
+
+function gen() {
+  const staff = readStaff();
+  if (!staff.length) { toast("職員を1名以上入力してください"); return; }
+  const period = document.getElementById("period").value || "（期間未入力）";
+  const facility = document.getElementById("facility").value;
+  const kinds = document.getElementById("kinds").value;
+  const dayMin = document.getElementById("dayMin").value;
+  const nightMin = document.getElementById("nightMin").value;
+  const rules = document.getElementById("rules").value.trim();
+
+  const staffLines = staff.map(s=>`- ${s.name}（${s.emp}／夜勤${s.night?'可':'不可'}）希望休・制約：${s.req||'なし'}`).join("\n");
+
+  const p =
+`あなたは介護施設のシフト管理に精通した管理者です。以下の条件で公平で実現可能な勤務シフト表を作成してください。
+
+# 施設・期間
+- 施設形態：${facility}
+- 対象期間：${period}
+- 勤務区分：${kinds}
+
+# 職員
+${staffLines}
+
+# 配置ルール
+- 日中の最低配置：${dayMin||'指定なし'}
+- 夜勤の配置：${nightMin||'指定なし'}
+${rules ? rules.split("\n").map(r=>"- "+r.replace(/^[-・\s]+/,"")).join("\n") : ""}
+
+# 守ること
+- 希望休は最優先で反映する
+- 勤務日数・夜勤回数が職員間で偏らないよう調整する
+- 労働基準（連続勤務・夜勤明けの扱い）に配慮する
+- 配置人数を満たせない日があれば明示し、対応案を提案する
+
+# 出力
+1. 日付×職員の表形式シフト（勤務区分を記載）
+2. 職員ごとの勤務日数・夜勤回数の集計
+3. 調整が必要な点・注意事項`;
+
+  document.getElementById("out").textContent = p;
+  toast("生成しました ✓");
+}
+
+// 初期化
+const saved = Store.get(KEY, []);
+if (saved.length) saved.forEach(addRow); else { addRow({name:'A職員',emp:'常勤',night:true}); addRow({name:'B職員',emp:'常勤',night:true}); addRow({name:'C職員',emp:'非常勤',night:false}); }
+</script>
+</body>
+</html>

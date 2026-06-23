@@ -1,0 +1,205 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ケアスイート for Claude ｜ 介護現場のためのAIツールキット</title>
+<meta name="description" content="介護施設の現場業務を、AI（Claude）でラクにする無料ツール集。シフト作成・介護記録・加算判定・ヒヤリハット報告など、現場で困りがちな業務をワンクリックで支援します。">
+<link rel="stylesheet" href="assets/style.css">
+<style>
+/* LP 専用スタイル */
+.hero {
+  background: linear-gradient(160deg, #ecfdf5 0%, #f3faf8 55%, #fffdf5 100%);
+  padding: 64px 22px 56px;
+  text-align: center;
+}
+.hero .eyebrow {
+  display: inline-block; font-weight: 700; color: var(--teal);
+  background: #d1fae5; padding: 6px 16px; border-radius: 999px; font-size: .85rem; margin-bottom: 18px;
+}
+.hero h1 { font-size: 2.5rem; margin: 0 0 16px; line-height: 1.35; }
+.hero h1 .hl { color: var(--teal); }
+.hero p.lead { font-size: 1.1rem; color: var(--ink-soft); max-width: 620px; margin: 0 auto 28px; }
+.hero .cta { display: flex; gap: 12px; justify-content: center; flex-wrap: wrap; }
+.hero .stat { margin-top: 34px; display:flex; gap:34px; justify-content:center; flex-wrap:wrap; color:var(--ink-soft); font-size:.9rem; }
+.hero .stat b { display:block; font-size:1.6rem; color:var(--teal-dark); }
+@media (max-width:640px){ .hero h1{font-size:1.9rem;} }
+
+.section { padding: 50px 0; }
+.section-title { text-align: center; margin-bottom: 8px; font-size: 1.6rem; }
+.section-sub { text-align: center; color: var(--ink-soft); margin: 0 0 34px; }
+
+.cat-label {
+  font-size: .85rem; font-weight: 800; color: var(--teal-dark);
+  letter-spacing: .05em; margin: 34px 0 14px; display: flex; align-items: center; gap: 10px;
+}
+.cat-label::after { content:""; flex:1; height:1px; background:var(--line); }
+
+.grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+  gap: 18px;
+}
+.tool-card {
+  display: flex; flex-direction: column;
+  background: #fff; border: 1px solid var(--line); border-radius: var(--radius);
+  padding: 22px; box-shadow: var(--shadow);
+  transition: transform .15s ease, box-shadow .15s ease, border-color .15s ease;
+  text-decoration: none; color: inherit;
+}
+.tool-card:hover { transform: translateY(-4px); box-shadow: var(--shadow-lg); border-color: var(--teal-light); text-decoration: none; }
+.tool-card .ico {
+  width: 52px; height: 52px; border-radius: 14px; display: grid; place-items: center;
+  font-size: 1.6rem; margin-bottom: 14px; background: #ecfdf5;
+}
+.tool-card h3 { margin: 0 0 6px; font-size: 1.1rem; }
+.tool-card p { margin: 0 0 14px; color: var(--ink-soft); font-size: .9rem; flex: 1; }
+.tool-card .go { font-weight: 700; color: var(--teal); font-size: .9rem; }
+.tool-card.soon { opacity: .65; pointer-events: none; }
+.tool-card.soon .go { color: var(--ink-soft); }
+
+.how { display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; }
+@media (max-width:760px){ .how{grid-template-columns:1fr;} }
+.how .step { background:#fff; border:1px solid var(--line); border-radius:var(--radius); padding:24px; box-shadow:var(--shadow); }
+.how .num { width:36px;height:36px;border-radius:50%;background:var(--teal);color:#fff;display:grid;place-items:center;font-weight:800;margin-bottom:12px; }
+</style>
+</head>
+<body>
+
+<header class="topbar">
+  <div class="brand"><span class="logo">C</span> ケアスイート <span style="font-weight:600;color:var(--ink-soft);font-size:.85rem;">for Claude</span></div>
+  <nav>
+    <a href="#tools">ツール一覧</a>
+    <a href="#how">使い方</a>
+    <a href="#faq">よくある質問</a>
+  </nav>
+</header>
+
+<section class="hero">
+  <span class="eyebrow">介護施設向け ・ AI活用ツールキット</span>
+  <h1>介護現場の「めんどう」を、<br><span class="hl">AIでまるごとラク</span>に。</h1>
+  <p class="lead">シフト作成、介護記録、加算判定、ヒヤリハット報告 ──
+  現場で時間を取られがちな業務を、Claude（生成AI）でサポートする無料ツール集です。
+  インストール不要、ブラウザですぐ使えます。</p>
+  <div class="cta">
+    <a class="btn btn-primary" href="#tools">ツールを使ってみる</a>
+    <a class="btn btn-ghost" href="#how">使い方を見る</a>
+  </div>
+  <div class="stat">
+    <div><b>12</b>種類のツール</div>
+    <div><b>0円</b>で利用可能</div>
+    <div><b>登録不要</b>すぐ使える</div>
+  </div>
+</section>
+
+<main class="wrap section" id="tools">
+  <h2 class="section-title">ツール一覧</h2>
+  <p class="section-sub">使いたいツールをクリックしてください。すべてブラウザ上で完結します。</p>
+
+  <div class="cat-label">📝 記録・モニタリング</div>
+  <div class="grid">
+    <a class="tool-card" href="tools/care-record.html">
+      <div class="ico">🗒️</div><h3>介護記録 作成支援</h3>
+      <p>箇条書きのメモから、SOAP形式や三大介護の記録文を整えます。記録時間を大幅に短縮。</p>
+      <span class="go">使う →</span>
+    </a>
+    <a class="tool-card" href="tools/hydration.html">
+      <div class="ico">💧</div><h3>水分摂取 記録・管理</h3>
+      <p>1日の水分量を記録し、目標達成度を自動集計。脱水リスクの早期発見に。</p>
+      <span class="go">使う →</span>
+    </a>
+    <a class="tool-card" href="tools/vitals.html">
+      <div class="ico">🌡️</div><h3>バイタル記録</h3>
+      <p>体温・血圧・脈拍・SpO₂を記録。基準値から外れた値を自動でハイライト。</p>
+      <span class="go">使う →</span>
+    </a>
+    <a class="tool-card" href="tools/meal.html">
+      <div class="ico">🍱</div><h3>食事摂取量 記録</h3>
+      <p>主食・副食の摂取量を割合で記録し、低栄養リスクのアラートを表示。</p>
+      <span class="go">使う →</span>
+    </a>
+  </div>
+
+  <div class="cat-label">🗂️ 業務・運営</div>
+  <div class="grid">
+    <a class="tool-card" href="tools/shift.html">
+      <div class="ico">📅</div><h3>シフト作成ツール</h3>
+      <p>職員と勤務区分・希望休を入力すると、Claudeで公平なシフト案を生成するプロンプトを作成。</p>
+      <span class="go">使う →</span>
+    </a>
+    <a class="tool-card" href="tools/kasan.html">
+      <div class="ico">🧮</div><h3>加算区分 判定ツール</h3>
+      <p>質問に答えるだけで、取得できそうな加算をチェック。算定要件の確認に。</p>
+      <span class="go">使う →</span>
+    </a>
+    <a class="tool-card" href="tools/handover.html">
+      <div class="ico">🔁</div><h3>申し送り 作成支援</h3>
+      <p>各利用者の状況メモから、漏れのない申し送り文を自動で整形します。</p>
+      <span class="go">使う →</span>
+    </a>
+    <a class="tool-card" href="tools/care-plan.html">
+      <div class="ico">📋</div><h3>ケアプラン 文案作成</h3>
+      <p>アセスメント情報から、ニーズ・長期/短期目標・サービス内容の文案を生成。</p>
+      <span class="go">使う →</span>
+    </a>
+  </div>
+
+  <div class="cat-label">🛟 安全・ケアの質</div>
+  <div class="grid">
+    <a class="tool-card" href="tools/medication.html">
+      <div class="ico">💊</div><h3>服薬管理</h3>
+      <p>利用者ごとの服薬スケジュールを管理し、飲み忘れチェックリストを作成。</p>
+      <span class="go">使う →</span>
+    </a>
+    <a class="tool-card" href="tools/incident.html">
+      <div class="ico">⚠️</div><h3>ヒヤリハット報告</h3>
+      <p>5W1Hで状況を入力すると、要因分析・再発防止策まで含む報告書を生成。</p>
+      <span class="go">使う →</span>
+    </a>
+    <a class="tool-card" href="tools/fall-risk.html">
+      <div class="ico">🚶</div><h3>転倒リスク評価</h3>
+      <p>項目チェックで転倒リスクをスコア化し、推奨される対策を提示します。</p>
+      <span class="go">使う →</span>
+    </a>
+    <a class="tool-card" href="tools/recreation.html">
+      <div class="ico">🎲</div><h3>レクリエーション企画</h3>
+      <p>季節・人数・身体状況に合わせたレク企画案を、進行台本つきで提案。</p>
+      <span class="go">使う →</span>
+    </a>
+  </div>
+</main>
+
+<section class="section" id="how" style="background:#fff;border-top:1px solid var(--line);border-bottom:1px solid var(--line);">
+  <div class="wrap">
+    <h2 class="section-title">使い方はかんたん3ステップ</h2>
+    <p class="section-sub">専門知識は不要。誰でもすぐに使い始められます。</p>
+    <div class="how">
+      <div class="step"><div class="num">1</div><h3>ツールを選ぶ</h3><p>現場で困っている業務に合うツールを一覧から選びます。</p></div>
+      <div class="step"><div class="num">2</div><h3>情報を入力</h3><p>フォームに必要な情報を入力。記録系ツールはそのまま集計・保存できます。</p></div>
+      <div class="step"><div class="num">3</div><h3>AIで仕上げる</h3><p>「プロンプト生成」ボタンでClaude用の指示文を作成。コピーしてClaudeに貼るだけ。</p></div>
+    </div>
+  </div>
+</section>
+
+<section class="section" id="faq">
+  <div class="tool-wrap">
+    <h2 class="section-title">よくある質問</h2>
+    <div class="card" style="margin-top:24px;">
+      <h3>料金はかかりますか？</h3>
+      <p style="color:var(--ink-soft);margin:0 0 18px;">これらのツール自体は無料でご利用いただけます。Claude（claude.ai）の利用も無料プランから始められます。</p>
+      <h3>入力した情報はどこかに送信されますか？</h3>
+      <p style="color:var(--ink-soft);margin:0 0 18px;">記録系ツールの保存先はお使いのブラウザ内（端末内）のみです。外部サーバーには送信しません。AIで仕上げる際は、生成された文章をご自身でClaudeに貼り付ける形のため、個人が特定される情報は伏せ字にするなどご配慮ください。</p>
+      <h3>個人情報の取り扱いで気をつけることは？</h3>
+      <p style="color:var(--ink-soft);margin:0;">利用者名はイニシャルや記号に置き換えるなど、施設のルールに従ってご利用ください。本ツールは業務支援を目的としたもので、医療・介護上の最終判断は専門職が行ってください。</p>
+    </div>
+  </div>
+</section>
+
+<footer class="site">
+  <p>ケアスイート for Claude ── 介護現場のためのAI活用ツールキット</p>
+  <p style="font-size:.78rem;opacity:.8;">本ツールは業務支援用のプロトタイプです。算定要件・医療判断等は必ず最新の公的情報および専門職の確認をお願いします。</p>
+</footer>
+
+<script src="assets/common.js"></script>
+</body>
+</html>

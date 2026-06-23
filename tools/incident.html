@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ヒヤリハット報告 ｜ ケアスイート for Claude</title>
+<link rel="stylesheet" href="../assets/style.css">
+</head>
+<body>
+<header class="topbar">
+  <a class="brand" href="../index.html" style="color:var(--teal-dark);"><span class="logo">C</span> ケアスイート</a>
+  <nav><a href="../index.html">← ツール一覧</a></nav>
+</header>
+
+<main class="tool-wrap">
+  <div class="tool-head">
+    <span class="eyebrow">安全・ケアの質</span>
+    <h1>⚠️ ヒヤリハット・事故報告 作成支援</h1>
+    <p>5W1Hで状況を入力すると、要因分析・再発防止策まで盛り込んだ報告書の文案を生成します。</p>
+  </div>
+
+  <div class="note">⚠️ 個人を責めるためでなく、再発防止のための記録です。利用者名・職員名は記号に置き換えてご利用ください。</div>
+
+  <div class="card">
+    <h2>1. 発生状況（5W1H）</h2>
+    <div class="grid-2">
+      <div class="field"><label>区分</label><select id="kind"><option>ヒヤリハット（事故に至らず）</option><option>介護事故</option></select></div>
+      <div class="field"><label>種類</label><select id="type"><option>転倒・転落</option><option>誤薬・服薬</option><option>誤嚥・窒息</option><option>離設・行方不明</option><option>皮膚剥離・打撲</option><option>異食</option><option>その他</option></select></div>
+    </div>
+    <div class="grid-2">
+      <div class="field"><label>いつ（日時）</label><input type="text" id="when" placeholder="例：6/23 14:30頃"></div>
+      <div class="field"><label>どこで（場所）</label><input type="text" id="where" placeholder="例：居室のベッド脇"></div>
+    </div>
+    <div class="grid-2">
+      <div class="field"><label>誰が（対象者）</label><input type="text" id="who" placeholder="例：A様（要介護3、歩行不安定）"></div>
+      <div class="field"><label>発見者・対応者</label><input type="text" id="finder" placeholder="例：介護職員X"></div>
+    </div>
+    <div class="field"><label>何が起きたか（状況）</label>
+      <textarea id="what" rows="3" placeholder="例：見守り中、立ち上がろうとしてバランスを崩し床に座り込んだ。外傷なし。"></textarea></div>
+    <div class="field"><label>なぜ起きたと思うか（推定要因）<span class="hint">（任意）</span></label>
+      <textarea id="why" rows="2" placeholder="例：ナースコールに手が届かず自力で動こうとした。床が滑りやすかった。"></textarea></div>
+    <div class="field"><label>その場でどう対応したか</label>
+      <textarea id="how" rows="2" placeholder="例：バイタル測定、看護師報告、家族連絡。外傷・疼痛なし、経過観察。"></textarea></div>
+  </div>
+
+  <div class="card">
+    <h2>2. Claude用プロンプトを生成</h2>
+    <div class="toolbar-row">
+      <button class="btn btn-primary" onclick="gen()">プロンプトを生成</button>
+      <button class="btn btn-ghost btn-sm" onclick="copyOutput('out')">コピー</button>
+      <div class="spacer"></div>
+      <button class="btn btn-ghost btn-sm" onclick="openClaude()">Claudeを開く ↗</button>
+    </div>
+    <div class="output" id="out"></div>
+  </div>
+</main>
+
+<script src="../assets/common.js"></script>
+<script>
+function v(id){return document.getElementById(id).value.trim();}
+function gen(){
+  if(!v("what")){toast("状況を入力してください");return;}
+  const p=
+`あなたは介護施設の安全管理（リスクマネジメント）担当者です。以下の情報をもとに、ヒヤリハット／事故報告書の文案を作成し、再発防止につなげてください。
+
+# 基本情報
+- 区分：${v("kind")||document.getElementById("kind").value}
+- 種類：${v("type")||document.getElementById("type").value}
+- 日時：${v("when")||"未記入"}
+- 場所：${v("where")||"未記入"}
+- 対象者：${v("who")||"未記入"}
+- 発見/対応者：${v("finder")||"未記入"}
+
+# 発生状況
+${v("what")}
+
+# 推定要因（現場の見立て）
+${v("why")||"記載なし"}
+
+# その場の対応
+${v("how")||"記載なし"}
+
+# 作成してほしい内容
+1. 事実経過（時系列・客観的に。主観と区別）
+2. 要因分析（人／環境／本人状態／業務手順の4観点で。なぜなぜ分析の視点）
+3. 再発防止策（すぐできる対策／仕組みで防ぐ対策に分けて、具体的に）
+4. 報告・共有の要否（家族・看護師・管理者・行政報告の目安）
+
+# ルール
+- 個人を非難せず、仕組みで防ぐ視点で書く
+- 入力にない事実は創作しない
+- 重大性が高い場合はその旨と必要な手続きを明記する`;
+  document.getElementById("out").textContent=p; toast("生成しました ✓");
+}
+</script>
+</body>
+</html>

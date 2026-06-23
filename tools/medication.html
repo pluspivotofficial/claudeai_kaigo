@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>服薬管理 ｜ ケアスイート for Claude</title>
+<link rel="stylesheet" href="../assets/style.css">
+</head>
+<body>
+<header class="topbar">
+  <a class="brand" href="../index.html" style="color:var(--teal-dark);"><span class="logo">C</span> ケアスイート</a>
+  <nav><a href="../index.html">← ツール一覧</a></nav>
+</header>
+
+<main class="tool-wrap">
+  <div class="tool-head">
+    <span class="eyebrow">安全・ケアの質</span>
+    <h1>💊 服薬管理</h1>
+    <p>利用者ごとの服薬スケジュールを登録し、時間帯別のチェックリストを作成します。</p>
+  </div>
+
+  <div class="note">⚠️ 投薬は医師の処方・指示に基づきます。本ツールは確認補助であり、薬剤の追加・変更・中止の判断には使えません。誤薬防止のため必ずダブルチェックを。</div>
+
+  <div class="card">
+    <h2>1. 服薬を登録</h2>
+    <div class="grid-2">
+      <div class="field"><label>利用者（記号）</label><input type="text" id="user" placeholder="A様"></div>
+      <div class="field"><label>薬剤名</label><input type="text" id="drug" placeholder="例：降圧剤（朝）"></div>
+    </div>
+    <div class="field"><label>服用タイミング</label>
+      <div class="chips" id="timing">
+        <span class="chip">起床時</span><span class="chip on">朝食後</span><span class="chip">昼食後</span>
+        <span class="chip">夕食後</span><span class="chip">就寝前</span><span class="chip">頓服</span>
+      </div>
+    </div>
+    <div class="field"><label>留意点 <span class="hint">（任意）</span></label><input type="text" id="memo" placeholder="例：粉砕可／要見守り嚥下"></div>
+    <button class="btn btn-primary" onclick="add()">＋ 登録</button>
+  </div>
+
+  <div class="card">
+    <h2>2. 登録一覧</h2>
+    <table><thead><tr><th>利用者</th><th>薬剤</th><th>タイミング</th><th>留意点</th><th></th></tr></thead><tbody id="rows"></tbody></table>
+  </div>
+
+  <div class="card">
+    <h2>3. 本日の服薬チェックリスト</h2>
+    <div class="toolbar-row">
+      <label style="font-weight:700;font-size:.9rem;">時間帯：</label>
+      <select id="slot" onchange="renderCheck()" style="width:auto;">
+        <option>起床時</option><option selected>朝食後</option><option>昼食後</option><option>夕食後</option><option>就寝前</option><option>頓服</option>
+      </select>
+    </div>
+    <div id="checklist"></div>
+  </div>
+</main>
+
+<script src="../assets/common.js"></script>
+<script>
+const KEY="cs_meds";
+let meds=Store.get(KEY,[]);
+initChips(document.getElementById("timing"));
+function add(){
+  const user=document.getElementById("user").value.trim();
+  const drug=document.getElementById("drug").value.trim();
+  const timing=selectedChips(document.getElementById("timing"));
+  if(!user||!drug){toast("利用者と薬剤名を入力してください");return;}
+  if(!timing.length){toast("タイミングを選んでください");return;}
+  meds.push({user,drug,timing,memo:document.getElementById("memo").value.trim()});
+  Store.set(KEY,meds); render(); renderCheck();
+  document.getElementById("drug").value=""; document.getElementById("memo").value="";
+  toast("登録しました ✓");
+}
+function del(i){meds.splice(i,1);Store.set(KEY,meds);render();renderCheck();}
+function render(){
+  document.getElementById("rows").innerHTML = meds.length? meds.map((m,i)=>
+    `<tr><td>${m.user}</td><td>${m.drug}</td><td>${m.timing.join("・")}</td><td>${m.memo||''}</td>
+     <td><button class="btn btn-danger btn-sm" onclick="del(${i})">削除</button></td></tr>`).join("")
+    : `<tr><td colspan="5" class="hint">登録がありません</td></tr>`;
+}
+function renderCheck(){
+  const slot=document.getElementById("slot").value;
+  const list=meds.filter(m=>m.timing.includes(slot));
+  const el=document.getElementById("checklist");
+  if(!list.length){el.innerHTML=`<p class="hint">この時間帯の服薬はありません。</p>`;return;}
+  el.innerHTML=list.map((m,i)=>
+    `<label style="display:flex;gap:10px;align-items:center;background:#f8fafc;padding:12px;border-radius:11px;margin-bottom:8px;cursor:pointer;">
+      <input type="checkbox" style="width:auto;width:20px;height:20px;">
+      <span><b>${m.user}</b> ── ${m.drug} ${m.memo?'<span class="badge">'+m.memo+'</span>':''}</span></label>`).join("")
+    + `<p class="hint" style="margin-top:10px;">✅ 配薬後にチェック。誤薬防止のため2人でのダブルチェックを推奨します。</p>`;
+}
+render(); renderCheck();
+</script>
+</body>
+</html>

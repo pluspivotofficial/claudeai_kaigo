@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>レクリエーション企画 ｜ ケアスイート for Claude</title>
+<link rel="stylesheet" href="../assets/style.css">
+</head>
+<body>
+<header class="topbar">
+  <a class="brand" href="../index.html" style="color:var(--teal-dark);"><span class="logo">C</span> ケアスイート</a>
+  <nav><a href="../index.html">← ツール一覧</a></nav>
+</header>
+
+<main class="tool-wrap">
+  <div class="tool-head">
+    <span class="eyebrow">安全・ケアの質</span>
+    <h1>🎲 レクリエーション企画</h1>
+    <p>季節・人数・身体状況に合わせたレク案を、進行台本・準備物つきで提案する指示文を生成します。</p>
+  </div>
+
+  <div class="card">
+    <h2>1. 条件を設定</h2>
+    <div class="grid-3">
+      <div class="field"><label>時期・季節</label><input type="text" id="season" placeholder="例：7月・七夕"></div>
+      <div class="field"><label>参加人数</label><input type="text" id="num" placeholder="例：10名程度"></div>
+      <div class="field"><label>所要時間</label><select id="time"><option>15分程度</option><option>30分程度</option><option>45分〜1時間</option></select></div>
+    </div>
+    <div class="field"><label>身体・認知の状況</label>
+      <div class="chips" id="cond">
+        <span class="chip on">座位中心</span><span class="chip">車椅子の方が多い</span><span class="chip">手指を動かせる</span>
+        <span class="chip">立位・歩行可能な方も</span><span class="chip">認知症の方が多い</span><span class="chip">発話が少ない方も</span>
+      </div>
+    </div>
+    <div class="grid-2">
+      <div class="field"><label>目的・ねらい</label>
+        <select id="aim"><option>身体機能の維持（体操系）</option><option>脳トレ・認知機能</option><option>季節を感じる・回想</option><option>交流・コミュニケーション</option><option>手先を使う・創作</option></select></div>
+      <div class="field"><label>用意できる物 <span class="hint">（任意）</span></label><input type="text" id="items" placeholder="例：風船、新聞紙、色紙"></div>
+    </div>
+  </div>
+
+  <div class="card">
+    <h2>2. Claude用プロンプトを生成</h2>
+    <div class="toolbar-row">
+      <button class="btn btn-primary" onclick="gen()">プロンプトを生成</button>
+      <button class="btn btn-ghost btn-sm" onclick="copyOutput('out')">コピー</button>
+      <div class="spacer"></div>
+      <button class="btn btn-ghost btn-sm" onclick="openClaude()">Claudeを開く ↗</button>
+    </div>
+    <div class="output" id="out"></div>
+  </div>
+</main>
+
+<script src="../assets/common.js"></script>
+<script>
+initChips(document.getElementById("cond"));
+function gen(){
+  const season=document.getElementById("season").value||"特に指定なし";
+  const num=document.getElementById("num").value||"指定なし";
+  const time=document.getElementById("time").value;
+  const cond=selectedChips(document.getElementById("cond"));
+  const aim=document.getElementById("aim").value;
+  const items=document.getElementById("items").value||"特になし（身近な物で）";
+  const p=
+`あなたは介護施設のレクリエーション介護士です。以下の条件に合うレクリエーション企画を3案提案してください。
+
+# 条件
+- 時期・季節：${season}
+- 参加人数：${num}
+- 所要時間：${time}
+- 参加者の状況：${cond.length?cond.join("、"):"指定なし"}
+- ねらい：${aim}
+- 用意できる物：${items}
+
+# 各案に含める内容
+1. レク名とねらい（一言）
+2. 準備物
+3. 進行の流れ（導入→展開→まとめ。声かけ例も）
+4. 盛り上げ・参加を促す工夫
+5. 安全面・配慮（転倒・誤嚥・個人差への対応）
+6. 難易度を上げる/下げるアレンジ
+
+# ルール
+- 参加者全員が「できた」と感じられる難易度設計にする
+- 身体・認知状況に配慮し、無理のない内容にする
+- 介護職がそのまま進行できる具体的な台本にする`;
+  document.getElementById("out").textContent=p; toast("生成しました ✓");
+}
+</script>
+</body>
+</html>

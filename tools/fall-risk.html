@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>転倒リスク評価 ｜ ケアスイート for Claude</title>
+<link rel="stylesheet" href="../assets/style.css">
+</head>
+<body>
+<header class="topbar">
+  <a class="brand" href="../index.html" style="color:var(--teal-dark);"><span class="logo">C</span> ケアスイート</a>
+  <nav><a href="../index.html">← ツール一覧</a></nav>
+</header>
+
+<main class="tool-wrap">
+  <div class="tool-head">
+    <span class="eyebrow">安全・ケアの質</span>
+    <h1>🚶 転倒リスク評価</h1>
+    <p>該当項目をチェックするとリスクをスコア化し、推奨される対策のヒントを提示します。</p>
+  </div>
+
+  <div class="note">⚠️ これは簡易スクリーニングの目安です。正式な評価は施設の所定様式・専門職の判断に従ってください。</div>
+
+  <div class="card">
+    <div class="grid-2">
+      <div class="field"><label>利用者（記号）</label><input type="text" id="user" placeholder="A様"></div>
+      <div class="field"><label>評価日</label><input type="date" id="date"></div>
+    </div>
+    <h2 style="margin-top:8px;">該当する項目にチェック</h2>
+    <div id="items"></div>
+  </div>
+
+  <div class="card">
+    <h2>評価結果</h2>
+    <button class="btn btn-primary" onclick="evalRisk()">リスクを判定</button>
+    <div id="result" style="margin-top:18px;"></div>
+  </div>
+
+  <div class="card">
+    <h2>Claudeで対策プランを作成</h2>
+    <div class="toolbar-row">
+      <button class="btn btn-primary" onclick="gen()">プロンプトを生成</button>
+      <button class="btn btn-ghost btn-sm" onclick="copyOutput('out')">コピー</button>
+      <div class="spacer"></div>
+      <button class="btn btn-ghost btn-sm" onclick="openClaude()">Claudeを開く ↗</button>
+    </div>
+    <div class="output" id="out"></div>
+  </div>
+</main>
+
+<script src="../assets/common.js"></script>
+<script>
+document.getElementById("date").value=new Date().toISOString().slice(0,10);
+const ITEMS=[
+  {t:"過去1年以内に転倒歴がある",w:3},
+  {t:"歩行・移動が不安定（ふらつき・小刻み歩行）",w:3},
+  {t:"下肢筋力の低下・立ち上がりに介助が必要",w:2},
+  {t:"認知機能の低下・見当識障害がある",w:2},
+  {t:"睡眠薬・向精神薬・降圧剤などを服用している",w:2},
+  {t:"視力・聴力の低下がある",w:1},
+  {t:"夜間頻尿・トイレ移動が多い",w:2},
+  {t:"立ちくらみ・めまいの訴えがある",w:2},
+  {t:"自分の能力を過信し、見守りを嫌がる",w:2},
+  {t:"履物・環境（コード・段差・滑りやすい床）に問題",w:1},
+];
+const el=document.getElementById("items");
+ITEMS.forEach((it,i)=>{
+  const l=document.createElement("label");
+  l.style.cssText="display:flex;gap:10px;align-items:center;background:#f8fafc;padding:11px;border-radius:11px;margin-bottom:8px;cursor:pointer;";
+  l.innerHTML=`<input type="checkbox" data-w="${it.w}" data-t="${it.t}" style="width:auto;width:18px;height:18px;"> <span>${it.t}</span>`;
+  el.appendChild(l);
+});
+function score(){
+  let s=0; const hit=[];
+  el.querySelectorAll("input:checked").forEach(c=>{s+=+c.dataset.w;hit.push(c.dataset.t);});
+  return {s,hit};
+}
+function evalRisk(){
+  const {s}=score();
+  let level,color,advice;
+  if(s>=7){level="高リスク";color="var(--danger)";advice="重点的な対策が必要です。多職種で対策を協議し、環境調整・見守り体制を見直してください。";}
+  else if(s>=4){level="中リスク";color="var(--accent)";advice="予防策の検討が望まれます。誘因を減らす工夫を取り入れましょう。";}
+  else{level="低リスク";color="var(--ok)";advice="現状は比較的低リスクですが、状態変化に注意し定期的に再評価を。";}
+  document.getElementById("result").innerHTML=
+   `<div style="display:flex;gap:16px;align-items:baseline;">
+      <span style="font-size:2.2rem;font-weight:800;color:${color};">${s}点</span>
+      <span class="badge" style="background:${color};color:#fff;font-size:.95rem;">${level}</span></div>
+    <p style="margin-top:10px;">${advice}</p>`;
+}
+function gen(){
+  const {s,hit}=score();
+  if(!hit.length){toast("該当項目をチェックしてください");return;}
+  const user=document.getElementById("user").value||"利用者";
+  const p=
+`あなたは介護施設の機能訓練指導員・看護師です。以下の転倒リスク評価結果をもとに、個別の転倒予防プランを提案してください。
+
+# 利用者
+${user}（簡易リスクスコア：${s}点）
+
+# 該当するリスク要因
+${hit.map(h=>"- "+h).join("\n")}
+
+# 出力
+1. このケースで特に注意すべき転倒の場面・時間帯
+2. 環境面の対策（居室・トイレ・動線など）
+3. ケア・見守り面の対策（声かけ・誘導・タイミング）
+4. 身体機能面のアプローチ（無理のない範囲で）
+5. 多職種・家族と共有すべき点
+
+# ルール
+- 身体拘束につながる対応は避け、その人らしさを尊重した自立支援の視点で提案する
+- 入力にない情報は決めつけず、追加で確認すべき点を挙げる`;
+  document.getElementById("out").textContent=p; toast("生成しました ✓");
+}
+</script>
+</body>
+</html>
