@@ -2,6 +2,25 @@
    ケアスイート for Claude  ── 共通ユーティリティ
    =========================================================== */
 
+/* -----------------------------------------------------------
+   アクセス解析（Google アナリティクス GA4）
+   GA4 の「測定ID」(G-XXXXXXXXXX) をここに設定すると全ページで計測されます。
+   未設定（プレースホルダーのまま）の場合は何も読み込みません。
+   ----------------------------------------------------------- */
+const GA_MEASUREMENT_ID = "G-XXXXXXXXXX";
+
+(function initAnalytics() {
+  if (!GA_MEASUREMENT_ID || GA_MEASUREMENT_ID === "G-XXXXXXXXXX") return;
+  const s = document.createElement("script");
+  s.async = true;
+  s.src = "https://www.googletagmanager.com/gtag/js?id=" + GA_MEASUREMENT_ID;
+  document.head.appendChild(s);
+  window.dataLayer = window.dataLayer || [];
+  window.gtag = function () { dataLayer.push(arguments); };
+  gtag("js", new Date());
+  gtag("config", GA_MEASUREMENT_ID);
+})();
+
 /** トースト通知 */
 function toast(msg) {
   let el = document.getElementById("toast");
