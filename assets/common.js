@@ -7,7 +7,7 @@
    GA4 の「測定ID」(G-XXXXXXXXXX) をここに設定すると全ページで計測されます。
    未設定（プレースホルダーのまま）の場合は何も読み込みません。
    ----------------------------------------------------------- */
-const GA_MEASUREMENT_ID = "G-XXXXXXXXXX";
+const GA_MEASUREMENT_ID = "G-18QGSWBSJ8";
 
 (function initAnalytics() {
   if (!GA_MEASUREMENT_ID || GA_MEASUREMENT_ID === "G-XXXXXXXXXX") return;
