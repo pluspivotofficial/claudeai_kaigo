@@ -71,6 +71,7 @@
   <nav>
     <a href="#tools">ツール一覧</a>
     <a href="#how">使い方</a>
+    <a href="#pricing">料金</a>
     <a href="#faq">よくある質問</a>
   </nav>
 </header>
@@ -87,7 +88,7 @@
   </div>
   <div class="stat">
     <div><b>12</b>種類のツール</div>
-    <div><b>0円</b>で利用可能</div>
+    <div><b>ブラウザ版0円</b>で利用可能</div>
     <div><b>登録不要</b>すぐ使える</div>
   </div>
 </section>
@@ -181,12 +182,75 @@
   </div>
 </section>
 
-<section class="section" id="faq">
+<section class="section" id="pricing">
+  <div class="wrap">
+    <h2 class="section-title">料金</h2>
+    <p class="section-sub">まずは無料でお試しいただき、必要になったら施設専用にカスタマイズできます。</p>
+
+    <div class="grid" style="grid-template-columns:repeat(auto-fit,minmax(280px,1fr));align-items:stretch;">
+      <!-- 無料プラン -->
+      <div class="card" style="display:flex;flex-direction:column;">
+        <span class="badge" style="align-self:flex-start;">ブラウザ版</span>
+        <h3 style="font-size:1.3rem;margin:12px 0 4px;">無料</h3>
+        <p style="color:var(--ink-soft);margin:0 0 16px;">このサイトのツールは、すべて<b>0円</b>でご利用いただけます。</p>
+        <ul style="margin:0 0 18px;padding-left:1.2em;color:var(--ink-soft);line-height:2;">
+          <li>全12ツールが使い放題</li>
+          <li>登録・インストール不要</li>
+          <li>データは端末内に保存（外部送信なし）</li>
+          <li>Claude用プロンプト生成つき</li>
+        </ul>
+        <div style="flex:1;"></div>
+        <a class="btn btn-ghost" href="#tools">今すぐ使ってみる</a>
+      </div>
+
+      <!-- 個別開発プラン -->
+      <div class="card" style="display:flex;flex-direction:column;border:2px solid var(--teal);position:relative;">
+        <span class="badge" style="align-self:flex-start;background:var(--teal);color:#fff;">施設ごとの個別開発</span>
+        <h3 style="font-size:1.3rem;margin:12px 0 0;"><span style="font-size:2rem;font-weight:800;color:var(--teal-dark);">5,000円</span> <span style="color:var(--ink-soft);font-size:1rem;">/ 月・1ツール</span></h3>
+        <p style="color:var(--ink-soft);margin:8px 0 16px;">貴施設の運用・帳票・ルールに合わせて作り込んだ<b>専用ツール</b>を、月額制でご提供します。</p>
+        <ul style="margin:0 0 18px;padding-left:1.2em;color:var(--ink-soft);line-height:2;">
+          <li>施設専用にカスタマイズ（項目・様式・計算ロジック）</li>
+          <li>データ保存・自動送信などの機能追加に対応</li>
+          <li>制度改定・運用変更にあわせた保守・改修</li>
+          <li>導入サポート・操作のご相談</li>
+        </ul>
+        <div style="flex:1;"></div>
+        <a class="btn btn-primary" href="#contact-section">個別開発を相談する</a>
+      </div>
+    </div>
+
+    <!-- まとめ割 -->
+    <div class="card" style="margin-top:20px;background:#ecfdf5;border-color:var(--teal-light);">
+      <h3 style="margin-top:0;color:var(--teal-dark);">🎁 まとめてお得 ── 複数ツール割引</h3>
+      <p style="color:var(--ink-soft);">個別開発を複数ツールお申し込みいただくほど、1ツールあたりの月額がお安くなります。</p>
+      <div class="grid" style="grid-template-columns:repeat(auto-fit,minmax(180px,1fr));margin-top:14px;">
+        <div class="card" style="text-align:center;margin:0;box-shadow:none;">
+          <div style="font-weight:700;color:var(--ink-soft);">1ツール</div>
+          <div style="font-size:1.5rem;font-weight:800;">5,000円</div>
+          <div class="hint">/ 月・ツール</div>
+        </div>
+        <div class="card" style="text-align:center;margin:0;box-shadow:none;">
+          <div style="font-weight:700;color:var(--ink-soft);">3ツール〜 <span class="badge">10%OFF</span></div>
+          <div style="font-size:1.5rem;font-weight:800;color:var(--teal-dark);">4,500円</div>
+          <div class="hint">/ 月・ツール</div>
+        </div>
+        <div class="card" style="text-align:center;margin:0;box-shadow:none;border-color:var(--teal-light);">
+          <div style="font-weight:700;color:var(--ink-soft);">5ツール〜 <span class="badge" style="background:var(--accent);color:#fff;">20%OFF</span></div>
+          <div style="font-size:1.5rem;font-weight:800;color:var(--teal-dark);">4,000円</div>
+          <div class="hint">/ 月・ツール</div>
+        </div>
+      </div>
+      <p class="hint" style="margin:16px 0 0;">※ 例：5ツールをまとめてご契約の場合、月額20,000円（1ツールあたり4,000円）。 ※ 初期費用・お見積りは内容により異なります。まずはお気軽にご相談ください。</p>
+    </div>
+  </div>
+</section>
+
+<section class="section" id="faq" style="background:#fff;border-top:1px solid var(--line);">
   <div class="tool-wrap">
     <h2 class="section-title">よくある質問</h2>
     <div class="card" style="margin-top:24px;">
       <h3>料金はかかりますか？</h3>
-      <p style="color:var(--ink-soft);margin:0 0 18px;">これらのツール自体は無料でご利用いただけます。Claude（claude.ai）の利用も無料プランから始められます。</p>
+      <p style="color:var(--ink-soft);margin:0 0 18px;">このサイトのブラウザ版ツールは<b>無料</b>でご利用いただけます（Claudeの利用も無料プランから始められます）。施設ごとに作り込む<b>個別開発は1ツール5,000円/月</b>、複数お申し込みで割引があります。詳しくは<a href="#pricing">料金</a>をご覧ください。</p>
       <h3>入力した情報はどこかに送信されますか？</h3>
       <p style="color:var(--ink-soft);margin:0 0 18px;">記録系ツールの保存先はお使いのブラウザ内（端末内）のみです。外部サーバーには送信しません。AIで仕上げる際は、生成された文章をご自身でClaudeに貼り付ける形のため、個人が特定される情報は伏せ字にするなどご配慮ください。</p>
       <h3>個人情報の取り扱いで気をつけることは？</h3>
